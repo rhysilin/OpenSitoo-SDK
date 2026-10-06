@@ -284,3 +284,5 @@ SDK 0.0.5 支持 128–32768 的输出预算，默认 8192，提交前按目录�
 规则已写入 SDK AGENTS，属于后续开发要求；目前没有自动 CI 文档一致性检查器，不能承诺自动生成手册。
 
 弃用迁移：defineApp/tools → RegisteredApp/catalog 与能力契约/Provider；旧领域任务映射 AppTask；UI、MCP、审批需要真实接线，仅替换类型不足以完成迁移。
+
+升级/卸载遇到实际平台调用、running 文本任务或未结束的生图任务时返回 APP_TASKS_ACTIVE。无 gatewayTaskId 的 unknown 生图记录不再永久阻止卸载或升级；仍保留历史记录和配置/作品，不表示远程任务被取消或未计费。有上游 ID 的 unknown 任务仍受保护，须先核对终态。

@@ -117,3 +117,5 @@ try {
 // 页面卸载时释放监听和轮询；dispose 之后不可再调用。
 client.dispose();
 ```
+
+升级/卸载遇到实际平台调用、running 文本任务或未结束的生图任务时返回 APP_TASKS_ACTIVE。无 gatewayTaskId 的 unknown 生图记录不再永久阻止卸载或升级；仍保留历史记录和配置/作品，不表示远程任务被取消或未计费。有上游 ID 的 unknown 任务仍受保护，须先核对终态。
