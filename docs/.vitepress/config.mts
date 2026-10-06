@@ -35,6 +35,7 @@ export default defineConfig({
           { text: '概览与能力边界', link: '/' },
           { text: '快速开始与发布', link: '/35-developer-kit-quickstart' },
           { text: '设计应用示例', link: '/37-design-studio' },
+          { text: '资源包架构提案', link: '/38-design-resource-pack-architecture' },
           { text: '标准与兼容性', link: '/standards' },
         ],
       },
