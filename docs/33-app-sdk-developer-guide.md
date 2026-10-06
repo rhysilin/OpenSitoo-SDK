@@ -1,6 +1,6 @@
 # Sitoo App SDK 开发者手册
 
-维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.3`。能力、任务、资源包声明契约版本：1。
+维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.4`。能力、任务、资源包声明契约版本：1。
 
 包命名已统一为 `@sitoo/sdk`。从历史 `@pi-market/sdk` 迁移时，同时修改 package.json 依赖、源码 import（包括 `/ui`、`/host`、`/mcp`）及 pnpm filter，重新安装依赖。外部项目使用新版开发工具包中的 SDK。此次不改变 SDK 0.0.3 的协议、能力契约或应用包格式；旧名称不作为新的导入别名提供。
 
@@ -12,13 +12,13 @@
 
 新应用先读 2–5 节，再按需阅读任务、配置、审批、MCP 和生图。完整参考是资料应用的 契约、命令、服务、任务转换、MCP 服务。
 
-| 状态           | 能力                                                                       |
-| -------------- | -------------------------------------------------------------------------- |
-| 已实现         | catalog、schema、帮助/命令、任务校验、配置、审批票据、MCP 桥、平台生图接口 |
-| 应用负责       | 业务服务、任务持久化、执行/取消/恢复、产物核验、领域安全、独立 UI          |
-| 平台集成者接线 | 注册 Provider、React 路由、IPC、账户服务和可信审批入口                     |
-| 已接入首版     | 静态 spkg、签名市场、安装/更新/回滚、隔离 UI、浏览器客户端、平台能力绑定   |
-| 设计中         | 第三方后端 OS 沙盒、完整通用调度器、自动迁移、独立资源包市场与模型能力代理 |
+| 状态           | 能力                                                                              |
+| -------------- | --------------------------------------------------------------------------------- |
+| 已实现         | catalog、schema、帮助/命令、任务校验、配置、审批票据、MCP 桥、平台生图接口        |
+| 应用负责       | 业务服务、任务持久化、执行/取消/恢复、产物核验、领域安全、独立 UI                 |
+| 平台集成者接线 | 注册 Provider、React 路由、IPC、账户服务和可信审批入口                            |
+| 已接入首版     | 静态 spkg、签名市场、安装/更新/回滚、隔离 UI、浏览器客户端、平台能力绑定          |
+| 设计中         | 第三方后端 OS 沙盒、完整通用调度器、自动迁移、独立资源包市场与完整 Agent 能力代理 |
 
 可信后端仍需仓库内接线。静态 UI 应用可独立打包、上架、安装，不修改 Desktop；只允许首版已列出的平台能力。工作区 SDK 仍 private；开发工具输出独立 npm 目录包和无依赖浏览器 client，不表示已发布公共 npm。完整步骤见 [开发工具快速开始](./35-developer-kit-quickstart.md)。
 
@@ -26,8 +26,8 @@
 
 根目录要求 Node >=24，使用 pnpm workspace、ESM 和严格 TypeScript。应用依赖声明 `"@sitoo/sdk": "workspace:*"`，沿用仓库 tsconfig；实际运行需支持当前 TypeScript 源码入口。
 
-| 入口                | 用途与边界                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------ |
+| 入口            | 用途与边界                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------ |
 | @sitoo/sdk      | manifest、契约、任务/产物、catalog、命令/schema、配置声明、资源包/图像类型；无 Host 文件存储 API |
 | @sitoo/sdk/host | ApplicationHost、ApplicationProvider、AppApprovalTarget、AppConfigState；仅可信服务端/主进程     |
 | @sitoo/sdk/mcp  | registerAppCapabilities；使用官方 MCP SDK 的可信服务端桥                                         |
@@ -259,11 +259,19 @@ node node_modules/pnpm/bin/pnpm.cjs --filter @sitoo/sdk test
 
 ### 13.1 静态包与浏览器契约
 
-`AppPackage` / `appPackageSchema` / `validateAppPackage` / `safeAppPath` 由根入口导出。包格式版本 1，execution 必须 static-platform；`files` 声明普通文件摘要和尺寸，`bindings` 绑定能力到 text.echo 或 images.generate。具体限制见快速开始。应用不能通过声明新增宿主工具或安装依赖；图像权限由平台执行，requiresConfirmation 不替代平台审批。
+`AppPackage` / `appPackageSchema` / `validateAppPackage` / `safeAppPath` 由根入口导出。包格式版本 1，execution 必须 static-platform；`files` 声明普通文件摘要和尺寸，`bindings` 绑定能力到 text.echo、text.generate 或 images.generate。具体限制见快速开始。应用不能通过声明新增宿主工具或安装依赖；图像权限由平台执行，requiresConfirmation 不替代平台审批。
 
-`createAppClient()` 返回 invoke、images、resources、configuration、dispose。invoke 参数为 capability、符合能力 schema 的 parameters、可选 UUID requestId；返回绑定能力结果，拒绝时抛 Error。图像结果是现有 SitooImageTask，按同一请求 ID 幂等；不要将提交结果当成已交付。images.getCapabilities/getTask/getArtifact 只访问本应用获准的配置与任务，watchTask 提供每两秒的有界轮询订阅（不是服务端事件）。resources.list/read 读取随包声明与最多 64 KB 的已校验文本，返回版本和 SHA-256 快照。configuration.get/save 使用声明式 schema、revision 和账户独立配置，不支持第三方凭据槽。dispose 撤销监听和未完成请求，不取消上游付费任务。
+`createAppClient()` 返回 platform、storage、invoke、text、images、resources、configuration、dispose。invoke 参数为 capability、符合能力 schema 的 parameters、可选 UUID requestId；返回绑定能力结果，拒绝时抛 Error。图像结果是现有 SitooImageTask，按同一请求 ID 幂等；不要将提交结果当成已交付。images.getCapabilities/getTask/getArtifact 只访问本应用获准的配置与任务，watchTask 提供每两秒的有界轮询订阅（不是服务端事件）。resources.list/read 读取随包声明与最多 64 KB 的已校验文本，返回版本和 SHA-256 快照。configuration.get/save 使用声明式 schema、revision 和账户独立配置，不支持第三方凭据槽。dispose 撤销监听和未完成请求，不取消上游付费任务。
 
 `AppCatalog.add/remove` 和 `ApplicationHost.unregister` 供可信宿主激活/停用包，不向应用 UI 授权。AppImages.generate 以及 AppImageProvider.generate 新增可选 requestId，旧代码不传仍兼容。0.0.2 为新增接口；旧包声明 sdkRange 必须包含 0.0.2，固定 0.0.1 的包需要明确更新兼容范围。
+
+### 13.2 平台文本推理（0.0.4）
+
+manifest 和能力均声明 `text:generate`，binding 使用 `text.generate`。浏览器通过 invoke 提交 AppTextRequest，返回 AppTextTask；text.listModels/getTask/listTasks 查询已启用模型和本应用任务。根入口导出 AppTextRequest/AppTextTask/AppTextModel 类型；AppTextProvider 是可信宿主适配契约，不直接提供给浏览器。
+
+Desktop 使用 Runtime Adapter 的 Pi 官方 pi-ai 单次补全，通过已有账户通道注入凭据，无工具、无独立 Agent 会话。应用自己组装领域需求与资源规则，SDK 不包含设计、海报等业务模板。实际 JSON Schema 输出核验、请求 ID 去重、并发、失败恢复和账户边界是通用平台职责。详细参数、限制、计费与 unknown 处理见[浏览器 SDK](./browser-sdk.md)。
+
+需要新版 Desktop 和 SDK >=0.0.4；旧应用原有能力兼容，包格式与浏览器协议不变。设计工作室的外部应用验证说明见[设计应用开发与使用](./37-design-studio.md)。
 
 ## 14. 手册持续更新
 

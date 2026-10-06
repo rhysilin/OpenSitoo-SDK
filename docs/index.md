@@ -15,16 +15,16 @@ features:
   - title: 独立开发
     details: 使用独立开发工具创建、检查和打包静态应用，无需修改 Desktop 源码。
   - title: 受控平台能力
-    details: 平台负责账户、审批、生图和业务数据隔离。应用拥有自己的 UI/UX。
+    details: 平台负责账户、审批、文本推理、生图和业务数据隔离。应用拥有自己的 UI/UX。
   - title: 独立分发
     details: 使用 spkg 和 TUF 签名市场安装、升级与回滚。
 ---
 
 ## 当前可用范围
 
-SDK 0.0.3，浏览器协议 `sitoo-app-v1`，应用包格式 1。支持静态 HTML/CSS/JavaScript 界面、普通配置、项目/草稿 JSON 存储、随包资源、生图任务查询与平台能力绑定。工作区 SDK 尚未发布到公共 npm，开发者使用独立工具包中的 SDK。
+SDK 0.0.4，浏览器协议 `sitoo-app-v1`，应用包格式 1。支持静态 HTML/CSS/JavaScript 界面、普通配置、项目/草稿 JSON 存储、随包资源、生图任务查询与平台能力绑定。工作区 SDK 尚未发布到公共 npm，开发者使用独立工具包中的 SDK。
 
-文本模型推理、任意第三方后端、独立资源包市场和外部应用自然语言编排仍待实现。能力发现返回真实支持状态；不要将类型声明视为宿主已开放能力。
+完整 Agent 执行、任意第三方后端、独立资源包市场和外部应用自然语言编排仍待实现。能力发现返回真实支持状态；不要将类型声明视为宿主已开放能力。
 
 ## 阅读顺序
 
@@ -35,6 +35,6 @@ SDK 0.0.3，浏览器协议 `sitoo-app-v1`，应用包格式 1。支持静态 HT
 
 ## 文档维护与部署
 
-本文档站独立维护于 OpenSitoo-SDK 仓库，构建时由 Markdown 生成网站。平台契约更新需与 Desktop 仓库中的 SDK 手册同步。执行 `npm run docs:build`，将 `docs/.vitepress/dist` 部署到静态 HTTPS 站点。子路径部署在构建时指定 `SITOO_DOCS_BASE=/developers/`。本地预览使用 `npm run docs:preview`，地址为 `http://127.0.0.1:18682/`。网站无需登录或新增动态服务，不含市场私钥和用户凭据。
+正文来自仓库 Markdown，构建时生成网站，不维护第二份内容。执行 `npm run docs:build`，将 `release/developer-docs` 部署到静态 HTTPS 站点。子路径部署在构建时指定 `SITOO_DOCS_BASE=/developers/`。本地预览使用 `npm run docs:preview`，地址为 `http://127.0.0.1:18682/`。网站无需登录或新增动态服务，不含市场私钥和用户凭据。
 
 更新 SDK 公共契约必须同步更新手册、浏览器参考、CHANGELOG 与运行示例，并验证文档构建与链接。

@@ -1,6 +1,6 @@
 # 浏览器 SDK 参考
 
-SDK 0.0.3。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
+SDK 0.0.4。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
 
 ```ts
 import { createAppClient, AppSdkError } from '@sitoo/sdk/ui';
@@ -13,7 +13,35 @@ if (platform.features.storage !== 1) throw new Error('请更新 Desktop');
 
 ## 能力发现
 
-`platform.getCapabilities()` 返回 protocolVersion、sdkVersion、appId、appVersion、features 和 limits。features 包含 configuration、resources、storage、imageTasks、textInference。配置/资源是否存在、图像权限来自已安装包；imageTasks 不代表模型已经配置，需另调用 `images.getCapabilities()`。本版 textInference 固定 false。
+`platform.getCapabilities()` 返回 protocolVersion、sdkVersion、appId、appVersion、features 和 limits。features 包含 configuration、resources、storage、imageTasks、textInference。配置/资源是否存在及模型能力权限来自已安装包；imageTasks 不代表模型已经配置，需另调用 `images.getCapabilities()`。textInference 表示宿主已开放接口且应用声明了文本权限，不代表当前已有可用模型。
+
+## 文本推理任务
+
+在 manifest 和对应能力中声明 `text:generate`，将 binding 设为 `text.generate`。使用 `invoke` 发起，结果为 AppTextTask；界面查询接口为 `text.listModels()`、`text.getTask(id)`、`text.listTasks()`。只能读取自身应用任务；无此权限时查询拒绝。模型列表只含当前账户已启用的 OpenAI 兼容平台模型，id 是不透明标识，name/group/price 用于展示；不开放自带服务或密钥。
+
+```ts
+const models = await client.text.listModels();
+if (!models.length) throw new Error('请在 Desktop 设置中启用平台文本模型');
+const requestId = crypto.randomUUID(); // 提交前写入草稿，超时后查询同一 ID。
+const task = await client.invoke(
+  'propose',
+  {
+    model: models[0].id,
+    prompt: '概括用户提供的需求',
+    maxTokens: 2048,
+  },
+  requestId,
+);
+const actual = await client.text.getTask(requestId);
+```
+
+AppTextRequest：model、prompt（1–8000 字符），可选 instructions（最多 8000 字符）、maxTokens（128–4096，默认 2048）、responseSchema（Draft-07 对象 schema，序列化最多 8000 字符）。应用能力 inputSchema 必须声明实际使用的字段；浏览器消息整体另有 20000 字符限制。单次输出最多 64000 UTF-8 字节。
+
+这是经 Pi 官方 pi-ai 执行的单次、无工具文本补全，不是会话 Agent 接口。instructions 是本次任务规则，不修改对话的默认系统提示词。responseSchema 由宿主在返回后校验，不保证上游原生结构化输出；结果 JSON 不合法或不符合 schema 为 failed，不交付 value。只返回文本与可选 token usage，不暴露原始 reasoning 或密钥；price 是目录价格展示，实际账单以网关为准。
+
+任务状态 running/completed/failed/unknown，含 id/appId/model/createdAt/updatedAt，成功可含 text/value/usage，失败含安全的 error。id 等于 requestId；同一 ID、规范参数和包摘要只执行一次，参数或包版本变化拒绝 REQUEST_CONFLICT。每账户最多 4 个并发、每应用最多 500 个留存文本任务。执行等待上限 90 秒；网络异常、退出或重启时结果不能确认则 unknown，不自动重试，可能已计费。页面关闭不取消任务；退出登录中断本机等待，不保证撤销上游费用。
+
+使用 `getTask` 轮询原任务直到状态变化，不要不断调用生成接口。无需额外独立原生确认，安装时明确授权文本模型费用；生成图片仍沿用三模式审批。任务数据存放于账户隔离的 Desktop 本地业务目录（不是模型密钥保险库），卸载保留记录，当前没有任务删除或自动回收 API。
 
 ## 项目与草稿存储
 

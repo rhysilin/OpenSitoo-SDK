@@ -1,8 +1,8 @@
 # Sitoo 应用开发工具：第一版
 
-当前 SDK 0.0.3；开发者文档站用 `npm run docs:build` 生成到 `release/developer-docs`。浏览器能力发现、项目/草稿存储和错误处理见[浏览器参考](./browser-sdk.md)。文本推理仍未开放。
+当前 SDK 0.0.4；开发者文档站用 `npm run docs:build` 生成到 `release/developer-docs`。浏览器能力发现、项目/草稿存储和错误处理见[浏览器参考](./browser-sdk.md)。文本任务使用 text.generate binding，详见浏览器参考。
 
-本版支持静态 HTML/CSS/JavaScript 界面，通过受控桥调用 `text.echo` 或平台 `images.generate`，以及随应用包声明的资源包。应用不能读取 Desktop preload、Node、账户密钥或任意本机文件。任意后端、第三方依赖安装、自动配置迁移、独立模型推理和单独的资源包市场仍未开放。
+本版支持静态 HTML/CSS/JavaScript 界面，通过受控桥调用 `text.echo`、`text.generate` 或平台 `images.generate`，以及随应用包声明的资源包。应用不能读取 Desktop preload、Node、账户密钥或任意本机文件。任意后端、第三方依赖安装、自动配置迁移、完整 Agent 执行和单独的资源包市场仍未开放。
 
 ## 外部开发者流程
 
@@ -25,6 +25,8 @@ node C:\Sitoo-Developer-Kit\sitoo-app.mjs check E:\syslocal\download\sitoo-demo.
 `app` 沿用 SDK 的 RegisteredApp；UI 入口必须是包内 `.html`。能力必须有 JSON Schema 和对应 binding。`text.echo` 返回参数 text。`images.generate` 要求 manifest 和能力均声明 `sitoo_image:generate`，参数使用现有 SitooImageRequest。平台继续处理模型配置、审批、收费请求和作品保存。该调用返回后台任务，不能将提交成功写成图片交付成功。
 
 浏览器使用样例中的 `createAppClient().invoke(capability, parameters, requestId?)`。付费请求遇到超时应保留同一 requestId 并查询实际任务，不能自动换 ID 重试；同一 ID 更改参数会被拒绝。`client.images.getCapabilities()` 查看可用配置，`getTask(taskId)` 查询本应用任务，`getArtifact(taskId)` 取得已保存图片。请求记录保存应用版本、包摘要、参数指纹与平台任务 ID。进度可通过下述 watchTask 轮询订阅；服务端事件推送与通用自然语言 MCP 调用尚未开放。
+
+文本推理 binding 为 `text.generate`，manifest 与能力均声明 `text:generate`。安装确认展示模型费用权限。应用选择 `text.listModels()` 返回的已启用平台模型标识，不提交密钥、provider 地址或任意网关；invoke 返回后台任务，按 requestId 查询实际结果。该接口不提供 Agent 工具。具体 schema、输出限制与恢复策略见[浏览器参考](./browser-sdk.md)。
 
 ## 随包设计资源
 

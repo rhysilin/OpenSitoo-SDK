@@ -1,6 +1,6 @@
 # Sitoo API 参考手册
 
-维护日期：2026-10-06。对应当前源码；App SDK 0.0.3，能力/任务契约 1。本文描述现有接口，不代表已发布公共 REST API。
+维护日期：2026-10-06。对应当前源码；App SDK 0.0.4，能力/任务契约 1。本文描述现有接口，不代表已发布公共 REST API。
 
 SDK 正式包名为 `@sitoo/sdk`，原 `@pi-market/sdk` 为历史名称。迁移须更新依赖与导入后重新安装；接口语义、协议及能力契约保持不变，详见开发者手册和 SDK 更新记录。
 
@@ -12,7 +12,7 @@ SDK 正式包名为 `@sitoo/sdk`，原 `@pi-market/sdk` 为历史名称。迁移
 
 | 类型             | 入口                                                 | 调用方与状态                                                           |
 | ---------------- | ---------------------------------------------------- | ---------------------------------------------------------------------- |
-| App SDK          | @sitoo/sdk、/host、/mcp                          | 应用声明与可信服务端；详见 [开发者手册](./33-app-sdk-developer-guide.md) |
+| App SDK          | @sitoo/sdk、/host、/mcp                              | 应用声明与可信服务端；详见 [开发者手册](./33-app-sdk-developer-guide.md) |
 | Desktop IPC      | window.piMarket                                      | 当前 Desktop 主窗口 renderer；不向第三方应用直接开放完整桥             |
 | 应用 MCP         | POST http://127.0.0.1:<动态端口>/mcp                 | 平台绑定的可信 MCP 客户端，账户 token 鉴权                             |
 | 生图私有 HTTP 桥 | POST http://127.0.0.1:<动态端口>/tool                | Runtime 扩展，不是公开生图 API                                         |
@@ -45,6 +45,8 @@ JS 调用形式为 `await window.piMarket.<模块>.<方法>(参数)`，不是 HT
 applications.images 的 getCapabilities、generate(request)、getTask(id)、listTasks、getArtifact(id) 分别返回 SitooImageCapabilities、SitooImageTask、SitooImageTask、SitooImageTask[]、`{mimeType:'image/png',dataUrl:string}`。需要应用声明 sitoo_image:generate；账户切换后旧绑定失效。当前可信窗口可传 appId，这不是不可信 UI 能自报身份的第三方授权方案。
 
 静态应用新增以下受控桥。完整 window.piMarket 仅可信主窗口可用；应用 iframe 只能使用 SDK /ui 的窄接口，身份由主进程签发的随机会话绑定，不能自报 appId。
+
+应用 iframe 使用 sandbox 的 allow-scripts、allow-forms、allow-downloads；不开放同源宿主访问、Node 或 preload。allow-downloads 用于下载 SDK 返回的作品副本，不授予任意本机文件读写权限。独立应用的生图审批由共享能力初始化审批服务，无需先打开对话页面。
 
 | 方法                              | 参数                                  | 返回及边界                                                                                                                                             |
 | --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -272,7 +274,7 @@ serve-desktop-updates.mjs 只用于本地更新验收，默认 loopback 18680（
 
 ### 浏览器 SDK 0.0.3 与宿主私有桥
 
-应用公开接口为 `createAppClient()`，详见[浏览器 SDK](./browser-sdk.md)。platform.getCapabilities、storage.get/list/put/delete、images.listTasks 均已接入；文本推理尚未开放。内部对应 IPC `apps:platform-capabilities(token)` 和 `apps:storage(token,operation,input)`，token 由主进程创建并绑定当前账户、已安装应用与包摘要，应用不能自行传入 appId 或 scope。浏览器只传数据，可信父页面持有 token 并调用私有 IPC。
+应用公开接口为 `createAppClient()`，详见[浏览器 SDK](./browser-sdk.md)。platform.getCapabilities、storage.get/list/put/delete、images.listTasks 均已接入；文本推理已开放，详见浏览器参考中的文本任务章节。内部查询 IPC 为 apps:text-operation(token,operation,id?)，operation 为 text-models/text-task/text-tasks；生成经 apps:invoke 调用 text.generate binding，不是公共 REST 路由。内部对应 IPC `apps:platform-capabilities(token)` 和 `apps:storage(token,operation,input)`，token 由主进程创建并绑定当前账户、已安装应用与包摘要，应用不能自行传入 appId 或 scope。浏览器只传数据，可信父页面持有 token 并调用私有 IPC。
 
 存储输入使用 JSON；get 输入 id，list 输入 cursor/limit，put 输入 id/revision/version/value，delete 输入 id/revision。revision 乐观并发检查、原子保存、删除墓碑及配额在宿主执行。单写 16 KiB、单应用单账户 8 MiB/1000 记录、分页最多 100；卸载保留，普通业务存储不加密，不接受路径或凭据槽位。
 

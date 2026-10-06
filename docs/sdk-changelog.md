@@ -2,6 +2,13 @@
 
 SDK 面向开发者的实际变化与开发者手册在同一批次更新。
 
+## 0.0.4（2026-10-06）
+
+- 静态能力绑定新增 `text.generate`，须在 manifest 和能力声明 `text:generate`。Desktop 通过 Runtime Adapter 的 Pi 官方 pi-ai 接口执行单次文本推理；不开放 Agent 工具、任意网络、文件访问或模型凭据。
+- 浏览器新增 `text.listModels/getTask/listTasks`。模型来自当前账户已启用的兼容平台模型，生成能力返回持久后台任务；任务 ID 等于 requestId，页面重开可查询。无流式事件或上游取消保证。
+- 文本请求支持 prompt、instructions、maxTokens 与 Draft-07 responseSchema；宿主校验输出，结构错误为 failed，网络/中断结果为 unknown，不自动重试。同一请求 ID 与参数、包摘要绑定，账户与应用隔离。
+- 新增独立设计工作室样例，使用两份随包行业资源、草稿存储、方案推理和共享生图；不增加设计专用 SDK 接口。新版能力需要 SDK >=0.0.4 与新版 Desktop；包格式和浏览器协议仍为 1，旧应用原接口保持兼容。
+
 ## 包命名迁移（2026-10-06）
 
 - SDK 包统一为 `@sitoo/sdk`，子入口为 `/ui`、`/host`、`/mcp`；原 `@pi-market/sdk` 为历史名称，新开发工具与示例只使用新名称。
