@@ -1,6 +1,6 @@
 # 浏览器 SDK 参考
 
-SDK 0.0.4。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
+SDK 0.0.5。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
 
 ```ts
 import { createAppClient, AppSdkError } from '@sitoo/sdk/ui';
@@ -18,6 +18,10 @@ if (platform.features.storage !== 1) throw new Error('请更新 Desktop');
 `platform.getCapabilities()` 返回 protocolVersion、sdkVersion、appId、appVersion、features 和 limits。features 包含 configuration、resources、storage、imageTasks、textInference。配置/资源是否存在及模型能力权限来自已安装包；imageTasks 不代表模型已经配置，需另调用 `images.getCapabilities()`。textInference 表示宿主已开放接口且应用声明了文本权限，不代表当前已有可用模型。
 
 ## 文本推理任务
+
+SDK 0.0.5 的模型记录可含 outputTokenLimit 和 outputLimitSource（platform/model）。当前 New API 目录未提供可信模型输出上限，Desktop 显示 32768 的平台预算上限；这不是上游模型支持保证。任务新增 maxTokens、stopReason（completed/length/rejected/unknown）、errorCode（OUTPUT_LIMIT/INVALID_OUTPUT/UPSTREAM_REJECTED/RESULT_UNKNOWN）。失败时可含部分 text 和 usage，不能作为成功的 value 使用。用量是模型报告，不等于费用证明。旧任务缺失这些字段时不推断历史原因。
+
+达到输出上限属于明确未完成，保留已收到的内容；结构化结果应在用户调整预算后，以新 requestId 主动重新生成完整结果，不拼接截断 JSON。对结果未知的任务先核对上游，再决定是否重新生成。平台不自动续写或重放；每个新请求都可能产生费用。
 
 在 manifest 和对应能力中声明 `text:generate`，将 binding 设为 `text.generate`。使用 `invoke` 发起，结果为 AppTextTask；界面查询接口为 `text.listModels()`、`text.getTask(id)`、`text.listTasks()`。只能读取自身应用任务；无此权限时查询拒绝。模型列表只含当前账户已启用的 OpenAI 兼容平台模型，id 是不透明标识，name/group/price 用于展示；不开放自带服务或密钥。
 
@@ -37,7 +41,7 @@ const task = await client.invoke(
 const actual = await client.text.getTask(requestId);
 ```
 
-AppTextRequest：model、prompt（1–8000 字符），可选 instructions（最多 8000 字符）、maxTokens（128–4096，默认 2048）、responseSchema（Draft-07 对象 schema，序列化最多 8000 字符）。应用能力 inputSchema 必须声明实际使用的字段；浏览器消息整体另有 20000 字符限制。单次输出最多 64000 UTF-8 字节。
+AppTextRequest：model、prompt（1–8000 字符），可选 instructions（最多 8000 字符）、maxTokens（128–32768，默认 8192）、responseSchema（Draft-07 对象 schema，序列化最多 8000 字符）。应用能力 inputSchema 必须声明实际使用的字段；浏览器消息整体另有 20000 字符限制。单次输出最多 64000 UTF-8 字节。
 
 这是经 Pi 官方 pi-ai 执行的单次、无工具文本补全，不是会话 Agent 接口。instructions 是本次任务规则，不修改对话的默认系统提示词。responseSchema 由宿主在返回后校验，不保证上游原生结构化输出；结果 JSON 不合法或不符合 schema 为 failed，不交付 value。只返回文本与可选 token usage，不暴露原始 reasoning 或密钥；price 是目录价格展示，实际账单以网关为准。
 

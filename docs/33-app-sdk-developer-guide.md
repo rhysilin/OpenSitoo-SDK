@@ -1,6 +1,6 @@
 # Sitoo App SDK 开发者手册
 
-维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.4`。能力、任务、资源包声明契约版本：1。
+维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.5`。能力、任务、资源包声明契约版本：1。
 
 包命名已统一为 `@sitoo/sdk`。从历史 `@pi-market/sdk` 迁移时，同时修改 package.json 依赖、源码 import（包括 `/ui`、`/host`、`/mcp`）及 pnpm filter，重新安装依赖。外部项目使用新版开发工具包中的 SDK。此次不改变 SDK 0.0.3 的协议、能力契约或应用包格式；旧名称不作为新的导入别名提供。
 
@@ -55,7 +55,7 @@ const contract: AppInvocationContract = {
   contractVersion: 1,
   appId: 'example.hello',
   name: '问候示例',
-  version: '0.1.0',
+  version: '0.1.1',
   description: '演示确定性调用。',
   uiEntry: 'hello',
   help: '输入 问候 name="小明"；输入 help 查看帮助。',
@@ -265,15 +265,17 @@ node node_modules/pnpm/bin/pnpm.cjs --filter @sitoo/sdk test
 
 `AppCatalog.add/remove` 和 `ApplicationHost.unregister` 供可信宿主激活/停用包，不向应用 UI 授权。AppImages.generate 以及 AppImageProvider.generate 新增可选 requestId，旧代码不传仍兼容。0.0.2 为新增接口；旧包声明 sdkRange 必须包含 0.0.2，固定 0.0.1 的包需要明确更新兼容范围。
 
-### 13.2 平台文本推理（0.0.4）
+### 13.2 平台文本推理（0.0.5）
 
 manifest 和能力均声明 `text:generate`，binding 使用 `text.generate`。浏览器通过 invoke 提交 AppTextRequest，返回 AppTextTask；text.listModels/getTask/listTasks 查询已启用模型和本应用任务。根入口导出 AppTextRequest/AppTextTask/AppTextModel 类型；AppTextProvider 是可信宿主适配契约，不直接提供给浏览器。
 
 Desktop 使用 Runtime Adapter 的 Pi 官方 pi-ai 单次补全，通过已有账户通道注入凭据，无工具、无独立 Agent 会话。应用自己组装领域需求与资源规则，SDK 不包含设计、海报等业务模板。实际 JSON Schema 输出核验、请求 ID 去重、并发、失败恢复和账户边界是通用平台职责。详细参数、限制、计费与 unknown 处理见[浏览器 SDK](./browser-sdk.md)。
 
-浏览器客户端可并行读取初始化状态；Desktop 桥每会话最多执行 4 个请求，最多排队 32 个，队列满才返回 BUSY。关闭页面会丢弃尚未执行的请求；不会重试已经开始的生成或写入。SDK 仍为 0.0.4，无需重新打包应用即可获得新版 Desktop 的桥修复。
+SDK 0.0.5 支持 128–32768 的输出预算，默认 8192，提交前按目录声明的有效上限校验。当前平台无法确认上游模型真实输出上限，目录明确标记平台预算。任务保留安全结束原因、错误分类、部分内容及用量；达到上限和结构不合规属于明确失败，不再统一归为 unknown。只有完整结构才可交付。应用应允许用户查看部分内容、调整预算后主动重新生成完整结果，不自动拼接 JSON 或重复收费。
 
-需要新版 Desktop 和 SDK >=0.0.4；旧应用原有能力兼容，包格式与浏览器协议不变。设计工作室的外部应用验证说明见[设计应用开发与使用](./37-design-studio.md)。
+浏览器客户端可并行读取初始化状态；Desktop 桥每会话最多执行 4 个请求，最多排队 32 个，队列满才返回 BUSY。关闭页面会丢弃尚未执行的请求；不会重试已经开始的生成或写入。SDK 仍为 0.0.5，无需重新打包应用即可获得新版 Desktop 的桥修复。
+
+需要新版 Desktop 和 SDK >=0.0.5；旧应用原有能力兼容，包格式与浏览器协议不变。设计工作室的外部应用验证说明见[设计应用开发与使用](./37-design-studio.md)。
 
 ## 14. 手册持续更新
 

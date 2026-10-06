@@ -1,6 +1,6 @@
 # Sitoo 应用开发工具：第一版
 
-当前 SDK 0.0.4；开发者文档站用 `npm run docs:build` 生成到 `release/developer-docs`。浏览器能力发现、项目/草稿存储和错误处理见[浏览器参考](./browser-sdk.md)。文本任务使用 text.generate binding，详见浏览器参考。
+当前 SDK 0.0.5；开发者文档站用 `npm run docs:build` 生成到 `release/developer-docs`。浏览器能力发现、项目/草稿存储和错误处理见[浏览器参考](./browser-sdk.md)。文本任务使用 text.generate binding，详见浏览器参考。
 
 本版支持静态 HTML/CSS/JavaScript 界面，通过受控桥调用 `text.echo`、`text.generate` 或平台 `images.generate`，以及随应用包声明的资源包。应用不能读取 Desktop preload、Node、账户密钥或任意本机文件。任意后端、第三方依赖安装、自动配置迁移、完整 Agent 执行和单独的资源包市场仍未开放。
 
