@@ -2,6 +2,13 @@
 
 SDK 面向开发者的实际变化与开发者手册在同一批次更新。
 
+## 0.0.6（2026-10-06）
+
+- 增加受控浏览器 attachments.importImages/get；导出 AppAttachment/AppImageReference，能力发现增加可选 features.attachments。用户选择授权、本机校验与标准化、账户和应用隔离持久化由 Desktop 执行。
+- text.generate 与 sitoImage.generate 绑定接受附件 ID/说明；AppTextRequest 声明 attachments。方案经 Pi 官方多模态传输，生图携带同一副本及注释；无需应用读取路径、持有凭据或自行上传。
+- PNG/JPEG/WebP 原图 <=12 MiB、<=2400 万像素，PNG 副本 <=1 MiB、最长边 <=1024（必要时 <=512），单请求最多 8 张、每账户每应用最多 200；生图编码参考参数上限提高至 12 MiB。卸载保留，目前无附件删除 API，移除草稿引用不释放配额。
+- 设计工作室 0.2.0 增加上传、逐图说明、草稿恢复和两阶段参考图。需新版 Desktop SDK >=0.0.6，旧包格式及接口兼容；没有视觉能力自动发现、Logo 精确复制或新第三方上传服务。
+
 ## 0.0.5（2026-10-06）
 
 - 新增 APP_TASKS_ACTIVE 安全错误，明确升级/卸载门禁原因；无上游 ID 的 unknown 历史生图任务不再永久阻止移除应用，历史数据继续保留。SDK 版本不变。

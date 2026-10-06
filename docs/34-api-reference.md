@@ -293,3 +293,9 @@ SDK API 按 SDK/契约版本管理；Desktop IPC 和私有桥目前是同客户�
 文档验证核对源码入口、方法清单、链接及示例；行为变更运行相关 SDK、桌面、MCP 和桥测试。不要为验证手册实际发送付费生图、执行任意 shell 或发起更新安装。本次文档编写不是所有接口端到端验收。
 
 升级/卸载遇到实际平台调用、running 文本任务或未结束的生图任务时返回 APP_TASKS_ACTIVE。无 gatewayTaskId 的 unknown 生图记录不再永久阻止卸载或升级；仍保留历史记录和配置/作品，不表示远程任务被取消或未计费。有上游 ID 的 unknown 任务仍受保护，须先核对终态。
+
+### 图片附件与多模态绑定（SDK 0.0.6）
+
+公开浏览器方法是 attachments.importImages() / get(id)，返回 AppAttachment[] / AppAttachment。内部 IPC 为 apps:attachment-operation(token,operation,id?)，operation 为 attachment-import / attachment-get；可信父页面持会话 token，应用不得自行指定 appId/scope/path。导入打开宿主选择器，取消返回 []；PNG/JPEG/WebP 原图 <=12 MiB、<=2400 万像素，标准化 PNG 副本 <=1 MiB、最长边 <=1024，必要时 <=512。每次最多 8 张、每应用每账户 200 张。账户切换后复验会话，拒绝跨账户返回。文件不加密、卸载保留，无公开删除 API。
+
+text.generate / sitoImage.generate 绑定新增可选 attachments: AppImageReference[]，每项 id 和 description（最多 500 字符）必填，最多 8。能力 schema 须声明字段。宿主读取附件，文本经 Pi 发送像素与说明；生图将附件转为 references 并按附件顺序追加说明。生图引用总数 <=8，编码参数上限 12 MiB；Runtime 生图私有 /tool 仍限 800 KiB，不供应用传输附件。上传不调用模型，不开放任意路径或第三方上传 HTTP 路由；费用和审批沿用实际生成能力。平台对视觉支持没有可靠目录标记，不自动改用其他模型。

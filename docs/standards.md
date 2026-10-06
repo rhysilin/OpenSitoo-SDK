@@ -4,7 +4,7 @@
 
 | 范围       | 标准与当前实现                                                                                                  |
 | ---------- | --------------------------------------------------------------------------------------------------------------- |
-| 版本       | [SemVer 2.0.0](https://semver.org/)，SDK 当前为 0.0.5；0.x 阶段需显式评估升级                                   |
+| 版本       | [SemVer 2.0.0](https://semver.org/)，SDK 当前为 0.0.6；0.x 阶段需显式评估升级                                   |
 | 参数与配置 | [JSON Schema Draft-07](https://json-schema.org/specification-links)，使用 Ajv 严格校验；当前不支持 2020-12 方言 |
 | 可编排能力 | [MCP](https://modelcontextprotocol.io/)，使用官方 SDK；已注册可信应用的桥，不代表外部静态应用已支持自然语言编排 |
 | 应用分发   | 标准 ZIP 容器 `.spkg`、SHA-256 文件摘要、[TUF](https://theupdateframework.io/) 签名元数据与官方 tuf-js 验证     |

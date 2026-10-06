@@ -1,8 +1,10 @@
 # 设计工作室：独立应用验证
 
-应用版本 0.1.2，要求 SDK >=0.0.5。业务源码在 apps/design-studio，独立静态 UI，通过公开 `@sitoo/sdk/ui` 调用平台，不导入 Desktop IPC、Pi、账户凭据或上游网络客户端。
+应用版本 0.2.0，要求 SDK >=0.0.6。业务源码在 apps/design-studio，独立静态 UI，通过公开 `@sitoo/sdk/ui` 调用平台，不导入 Desktop IPC、Pi、账户凭据或上游网络客户端。
 
 0.1.2 区分生图与保存占位文案；共享 Desktop 保存链路兼容二进制响应头并验证图片内容，不重新生图。
+
+0.2.0 新增通用附件 SDK 的两阶段参考图、逐图说明和草稿恢复，不增加设计专用平台 API。
 
 ## 使用流程
 
@@ -10,9 +12,9 @@
 
 1. Desktop 登录账户，在设置中启用至少一个兼容平台文本模型，配置共享图像生成能力与作品目录。
 2. 应用市场加载已构建的设计工作室开发包，核对文本推理和生图权限后安装。正式分发仍经签名市场；本版不自动上架到生产市场。
-3. 打开应用，选择“海报与文化传播”或“商品与品牌传播”资源包。填写用途、受众、文字、风格与约束，选择平台文本模型和画幅。
+3. 打开应用，选择“海报与文化传播”或“商品与品牌传播”资源包。可上传参考图片，每张填写用途说明，例如“这是品牌 Logo，保留形状和颜色”。填写用途、受众、文字、风格与约束，选择支持图片输入的平台文本模型和画幅。
 4. 生成设计方案，查看构图、配色、假设与检查清单，修改最终提示词。方案模型和生图模型分别配置；文本推理可能计费。
-5. 可填写 HTTPS 参考图链接，按方案生成图片。沿用 Desktop 三模式审批；等待期间卡片更新原任务，用户可继续浏览结果。生成成功后平台自动下载并保存作品，点击图片可下载副本。
+5. 按方案生成图片，自动携带步骤 1 的同一组参考图和说明；也可额外添加一个 HTTPS 链接，仅用于生图。沿用 Desktop 三模式审批；等待期间卡片更新原任务，用户可继续浏览结果。生成成功后平台自动下载并保存作品，点击图片可下载副本。
 6. 保存草稿后可重开；进行中的文本任务按同一 requestId 恢复查询，生图通过平台任务列表恢复。失败与未知结果保留诊断，不自动再收费，不作为成功作品。
 
 资源选择或需求、画幅变化会清除当前方案，要求重新形成方案；不会更改已发起任务。方案检查清单供人工审阅，不代表自动审美验收。当前一个应用草稿、多个生图历史任务；不提供完整多项目管理。
@@ -22,8 +24,8 @@
 ```powershell
 node apps/design-studio/build.mjs
 node scripts/app-toolkit.mjs
-node release/developer-kit/sitoo-app.mjs pack apps/design-studio release/apps/sitoo-design-0.1.2.spkg
-node release/developer-kit/sitoo-app.mjs check release/apps/sitoo-design-0.1.2.spkg
+node release/developer-kit/sitoo-app.mjs pack apps/design-studio release/apps/sitoo-design-0.2.0.spkg
+node release/developer-kit/sitoo-app.mjs check release/apps/sitoo-design-0.2.0.spkg
 ```
 
 源码构建使用 React、Base UI Button 与 assistant-ui 开源 ImageGeneration/surfaces 组件，保持品牌色、留白与阅读层级。工作区可复用已安装构建依赖；外部开发者安装开发工具包中的 SDK，并将 package.json 的 workspace 依赖改为实际本地 SDK 安装路径，再安装其声明的前端依赖。不要求其他应用使用同一前端框架。
@@ -34,4 +36,4 @@ node release/developer-kit/sitoo-app.mjs check release/apps/sitoo-design-0.1.2.s
 
 `@设计工作室 help` 或 `@设计工作室 帮助` 返回本地说明。显式 propose / generate 使用同一平台能力；propose 的 model 需使用 SDK 模型列表中的标识，generate 需提供最终提示词。当前对话不会自动组合完整行业方案流程，应用端的规则组装属于业务代码；自然语言编排仍是平台后续缺口。
 
-随包资源的版本和内容摘要会核验，可在 UI 切换；没有独立在线资源包安装市场。本版参考图只接收可访问的 HTTPS 链接，不提供本机文件上传。没有印刷级 CMYK、出血、字体嵌入保证。真实付费通道与设计质量仍需用户在审批后验收，模拟测试只能证明桥、任务和存储行为。
+随包资源的版本和内容摘要会核验，可在 UI 切换；没有独立在线资源包安装市场。上传 PNG/JPEG/WebP 原图，每张 <=12 MiB、<=2400 万像素，最多 8 张（含生图额外链接）。平台标准化为 <=1 MiB 的 PNG 副本，原图不改写。图片和说明会进入模型请求；草稿保存附件 ID/说明，重开可恢复。移除只删除草稿引用，平台每账户每应用最多 200 个附件，当前无删除回收 API。参考图不保证 Logo 精确复制，尚无后期精确叠加能力。没有印刷级 CMYK、出血、字体嵌入保证。真实付费通道与设计质量仍需用户在审批后验收，模拟测试只能证明桥、任务和存储行为。

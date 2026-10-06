@@ -1,6 +1,6 @@
 # Sitoo App SDK 开发者手册
 
-维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.5`。能力、任务、资源包声明契约版本：1。
+维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.6`。能力、任务、资源包声明契约版本：1。
 
 包命名已统一为 `@sitoo/sdk`。从历史 `@pi-market/sdk` 迁移时，同时修改 package.json 依赖、源码 import（包括 `/ui`、`/host`、`/mcp`）及 pnpm filter，重新安装依赖。外部项目使用新版开发工具包中的 SDK。此次不改变 SDK 0.0.3 的协议、能力契约或应用包格式；旧名称不作为新的导入别名提供。
 
@@ -261,21 +261,21 @@ node node_modules/pnpm/bin/pnpm.cjs --filter @sitoo/sdk test
 
 `AppPackage` / `appPackageSchema` / `validateAppPackage` / `safeAppPath` 由根入口导出。包格式版本 1，execution 必须 static-platform；`files` 声明普通文件摘要和尺寸，`bindings` 绑定能力到 text.echo、text.generate 或 images.generate。具体限制见快速开始。应用不能通过声明新增宿主工具或安装依赖；图像权限由平台执行，requiresConfirmation 不替代平台审批。
 
-`createAppClient()` 返回 platform、storage、invoke、text、images、resources、configuration、dispose。invoke 参数为 capability、符合能力 schema 的 parameters、可选 UUID requestId；返回绑定能力结果，拒绝时抛 Error。图像结果是现有 SitooImageTask，按同一请求 ID 幂等；不要将提交结果当成已交付。images.getCapabilities/getTask/getArtifact 只访问本应用获准的配置与任务，watchTask 提供每两秒的有界轮询订阅（不是服务端事件）。resources.list/read 读取随包声明与最多 64 KB 的已校验文本，返回版本和 SHA-256 快照。configuration.get/save 使用声明式 schema、revision 和账户独立配置，不支持第三方凭据槽。dispose 撤销监听和未完成请求，不取消上游付费任务。
+`createAppClient()` 返回 platform、storage、attachments、invoke、text、images、resources、configuration、dispose。invoke 参数为 capability、符合能力 schema 的 parameters、可选 UUID requestId；返回绑定能力结果，拒绝时抛 Error。图像结果是现有 SitooImageTask，按同一请求 ID 幂等；不要将提交结果当成已交付。images.getCapabilities/getTask/getArtifact 只访问本应用获准的配置与任务，watchTask 提供每两秒的有界轮询订阅（不是服务端事件）。resources.list/read 读取随包声明与最多 64 KB 的已校验文本，返回版本和 SHA-256 快照。configuration.get/save 使用声明式 schema、revision 和账户独立配置，不支持第三方凭据槽。dispose 撤销监听和未完成请求，不取消上游付费任务。
 
 `AppCatalog.add/remove` 和 `ApplicationHost.unregister` 供可信宿主激活/停用包，不向应用 UI 授权。AppImages.generate 以及 AppImageProvider.generate 新增可选 requestId，旧代码不传仍兼容。0.0.2 为新增接口；旧包声明 sdkRange 必须包含 0.0.2，固定 0.0.1 的包需要明确更新兼容范围。
 
-### 13.2 平台文本推理（0.0.5）
+### 13.2 平台文本推理（0.0.6）
 
 manifest 和能力均声明 `text:generate`，binding 使用 `text.generate`。浏览器通过 invoke 提交 AppTextRequest，返回 AppTextTask；text.listModels/getTask/listTasks 查询已启用模型和本应用任务。根入口导出 AppTextRequest/AppTextTask/AppTextModel 类型；AppTextProvider 是可信宿主适配契约，不直接提供给浏览器。
 
 Desktop 使用 Runtime Adapter 的 Pi 官方 pi-ai 单次补全，通过已有账户通道注入凭据，无工具、无独立 Agent 会话。应用自己组装领域需求与资源规则，SDK 不包含设计、海报等业务模板。实际 JSON Schema 输出核验、请求 ID 去重、并发、失败恢复和账户边界是通用平台职责。详细参数、限制、计费与 unknown 处理见[浏览器 SDK](./browser-sdk.md)。
 
-SDK 0.0.5 支持 128–32768 的输出预算，默认 8192，提交前按目录声明的有效上限校验。当前平台无法确认上游模型真实输出上限，目录明确标记平台预算。任务保留安全结束原因、错误分类、部分内容及用量；达到上限和结构不合规属于明确失败，不再统一归为 unknown。只有完整结构才可交付。应用应允许用户查看部分内容、调整预算后主动重新生成完整结果，不自动拼接 JSON 或重复收费。
+SDK 0.0.6 支持 128–32768 的输出预算，默认 8192，提交前按目录声明的有效上限校验。当前平台无法确认上游模型真实输出上限，目录明确标记平台预算。任务保留安全结束原因、错误分类、部分内容及用量；达到上限和结构不合规属于明确失败，不再统一归为 unknown。只有完整结构才可交付。应用应允许用户查看部分内容、调整预算后主动重新生成完整结果，不自动拼接 JSON 或重复收费。
 
-浏览器客户端可并行读取初始化状态；Desktop 桥每会话最多执行 4 个请求，最多排队 32 个，队列满才返回 BUSY。关闭页面会丢弃尚未执行的请求；不会重试已经开始的生成或写入。SDK 仍为 0.0.5，无需重新打包应用即可获得新版 Desktop 的桥修复。
+浏览器客户端可并行读取初始化状态；Desktop 桥每会话最多执行 4 个请求，最多排队 32 个，队列满才返回 BUSY。关闭页面会丢弃尚未执行的请求；不会重试已经开始的生成或写入。SDK 仍为 0.0.6，无需重新打包应用即可获得新版 Desktop 的桥修复。
 
-需要新版 Desktop 和 SDK >=0.0.5；旧应用原有能力兼容，包格式与浏览器协议不变。设计工作室的外部应用验证说明见[设计应用开发与使用](./37-design-studio.md)。
+需要新版 Desktop 和 SDK >=0.0.6；旧应用原有能力兼容，包格式与浏览器协议不变。设计工作室的外部应用验证说明见[设计应用开发与使用](./37-design-studio.md)。
 
 ## 14. 手册持续更新
 
@@ -286,3 +286,13 @@ SDK 0.0.5 支持 128–32768 的输出预算，默认 8192，提交前按目录�
 弃用迁移：defineApp/tools → RegisteredApp/catalog 与能力契约/Provider；旧领域任务映射 AppTask；UI、MCP、审批需要真实接线，仅替换类型不足以完成迁移。
 
 升级/卸载遇到实际平台调用、running 文本任务或未结束的生图任务时返回 APP_TASKS_ACTIVE。无 gatewayTaskId 的 unknown 生图记录不再永久阻止卸载或升级；仍保留历史记录和配置/作品，不表示远程任务被取消或未计费。有上游 ID 的 unknown 任务仍受保护，须先核对终态。
+
+### 13.3 用户图片附件（0.0.6）
+
+`client.attachments.importImages()` 打开宿主文件选择器，取消返回空数组；`get(id)` 获取本应用、当前账户的持久附件。根入口导出 AppAttachment、AppImageReference。能力发现增加可选 features.attachments，true 表示宿主支持图片导入。第三方应用不能提交本机路径，也不自行上传到第三方服务。
+
+AppAttachment 含 id/name/mimeType/bytes/dataUrl，mimeType 为 image/png，bytes 是标准化副本大小。AppImageReference 为 `{id,description}`；text.generate 和 sitoImage.generate 的 inputSchema 可声明 attachments 数组（最多 8，说明最多 500 字符），由宿主解引用。AppTextRequest 声明此字段；生图附件为应用绑定扩展字段，不更改共享 SitooImageRequest。浏览器只提交 ID 和说明，不能用原图 dataUrl 填充业务 JSON 存储。
+
+原图允许 PNG/JPEG/WebP，单文件 <=12 MiB、<=2400 万像素；Desktop 校验真实格式并解码，生成最长边最多 1024 像素的 PNG，必要时缩小至 512，副本 <=1 MiB。每账户每应用最多 200 个附件，序列化副本总体约 267 MiB 加元数据；不是原图档案库。普通本地业务附件不加密，卸载保留，目前无删除或自动回收 API。界面移除只移除草稿引用，不释放附件配额。
+
+图片在用户发起模型任务时随已有平台通道发送，沿用该能力的授权和审批；导入本身不调用模型。方案推理经 Pi 多模态输入发送像素和依序说明，生图携带同一副本与说明。当前目录没有可靠的视觉支持标记，选择支持图片的模型由应用提示用户，上游拒绝按原有任务错误处理，不自动换模型或重试。参考图不保证 Logo 精确复制。

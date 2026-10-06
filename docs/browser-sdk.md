@@ -1,6 +1,6 @@
 # 浏览器 SDK 参考
 
-SDK 0.0.5。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
+SDK 0.0.6。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
 
 ```ts
 import { createAppClient, AppSdkError } from '@sitoo/sdk/ui';
@@ -15,11 +15,11 @@ if (platform.features.storage !== 1) throw new Error('请更新 Desktop');
 
 ## 能力发现
 
-`platform.getCapabilities()` 返回 protocolVersion、sdkVersion、appId、appVersion、features 和 limits。features 包含 configuration、resources、storage、imageTasks、textInference。配置/资源是否存在及模型能力权限来自已安装包；imageTasks 不代表模型已经配置，需另调用 `images.getCapabilities()`。textInference 表示宿主已开放接口且应用声明了文本权限，不代表当前已有可用模型。
+`platform.getCapabilities()` 返回 protocolVersion、sdkVersion、appId、appVersion、features 和 limits。features 包含 configuration、resources、storage、imageTasks、textInference 和可选 attachments。配置/资源是否存在及模型能力权限来自已安装包；imageTasks 不代表模型已经配置，需另调用 `images.getCapabilities()`。textInference 表示宿主已开放接口且应用声明了文本权限，不代表当前已有可用模型。
 
 ## 文本推理任务
 
-SDK 0.0.5 的模型记录可含 outputTokenLimit 和 outputLimitSource（platform/model）。当前 New API 目录未提供可信模型输出上限，Desktop 显示 32768 的平台预算上限；这不是上游模型支持保证。任务新增 maxTokens、stopReason（completed/length/rejected/unknown）、errorCode（OUTPUT_LIMIT/INVALID_OUTPUT/UPSTREAM_REJECTED/RESULT_UNKNOWN）。失败时可含部分 text 和 usage，不能作为成功的 value 使用。用量是模型报告，不等于费用证明。旧任务缺失这些字段时不推断历史原因。
+SDK 0.0.6 的模型记录可含 outputTokenLimit 和 outputLimitSource（platform/model）。当前 New API 目录未提供可信模型输出上限，Desktop 显示 32768 的平台预算上限；这不是上游模型支持保证。任务新增 maxTokens、stopReason（completed/length/rejected/unknown）、errorCode（OUTPUT_LIMIT/INVALID_OUTPUT/UPSTREAM_REJECTED/RESULT_UNKNOWN）。失败时可含部分 text 和 usage，不能作为成功的 value 使用。用量是模型报告，不等于费用证明。旧任务缺失这些字段时不推断历史原因。
 
 达到输出上限属于明确未完成，保留已收到的内容；结构化结果应在用户调整预算后，以新 requestId 主动重新生成完整结果，不拼接截断 JSON。对结果未知的任务先核对上游，再决定是否重新生成。平台不自动续写或重放；每个新请求都可能产生费用。
 
@@ -119,3 +119,25 @@ client.dispose();
 ```
 
 升级/卸载遇到实际平台调用、running 文本任务或未结束的生图任务时返回 APP_TASKS_ACTIVE。无 gatewayTaskId 的 unknown 生图记录不再永久阻止卸载或升级；仍保留历史记录和配置/作品，不表示远程任务被取消或未计费。有上游 ID 的 unknown 任务仍受保护，须先核对终态。
+
+## 图片附件（SDK 0.0.6）
+
+```ts
+if (!platform.features.attachments) throw new Error('请更新 Desktop');
+const imported = await client.attachments.importImages(); // 用户授权文件选择；取消为 []
+const references = imported.map((image) => ({ id: image.id, description: '这是品牌 Logo' }));
+const preview = imported[0] ? await client.attachments.get(imported[0].id) : undefined;
+// 将 references 存入草稿，不保存 dataUrl；重开后用 get(id) 恢复预览。
+await client.invoke(
+  'propose',
+  { model: models[0].id, prompt: '分析需求', attachments: references },
+  crypto.randomUUID(),
+);
+// 生图能力 inputSchema 同样声明 attachments，沿用这组 references。
+```
+
+例中的 propose 是应用自己的能力 ID，需要 binding=text.generate、text:generate 权限。attachments 是最多 8 个 `{id,description}`，description 必填但可为空、最多 500 字符。能力 inputSchema 必须声明数组及对象字段，宿主按账户／应用归属读取，禁止跨归属、任意文件路径。图片像素只在宿主内部转换为 Pi 多模态块；内部 images/base64 字段不是浏览器接口。
+
+`importImages(): Promise<AppAttachment[]>` 和 `get(id): Promise<AppAttachment>`；对象含 id/name/mimeType/bytes/dataUrl，可将 dataUrl 用于 img 预览。导入原图 PNG/JPEG/WebP 单个 <=12 MiB、<=2400 万像素，一次最多 8 张。副本为 PNG 最长边 <=1024（必要时 <=512）、<=1 MiB，每账户每应用最多 200 个附件。上传不发起模型请求；调用方案、生图才发送图片并可能计费。生图附件加 references 链接合计最多 8，编码参考图参数上限 12 MiB；说明追加到 prompt 后仍须满足 8000 字符上限。
+
+原图不复制入作品目录；副本保存在宿主应用业务目录，卸载保留，当前没有删除／自动回收 API。移除草稿引用不释放配额。需支持图片输入的文本模型，目录未提供可信视觉能力标记；仅选中文本模型不能保证看图。Logo 精确复制应由应用后续排版能力完成，本版无此保证。
