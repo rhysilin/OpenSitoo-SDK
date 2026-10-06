@@ -3,7 +3,7 @@
 SDK 0.0.3。适用于安装在 Desktop 中的静态应用界面；应用不能直接使用 `window.piMarket` 或宿主 `/host` 接口。
 
 ```ts
-import { createAppClient, AppSdkError } from '@pi-market/sdk/ui';
+import { createAppClient, AppSdkError } from '@sitoo/sdk/ui';
 const client = createAppClient();
 const platform = await client.platform.getCapabilities();
 if (platform.features.storage !== 1) throw new Error('请更新 Desktop');

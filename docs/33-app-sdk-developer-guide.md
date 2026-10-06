@@ -1,6 +1,8 @@
 # Sitoo App SDK 开发者手册
 
-维护日期：2026-10-06。适用 SDK：`@pi-market/sdk@0.0.3`。能力、任务、资源包声明契约版本：1。
+维护日期：2026-10-06。适用 SDK：`@sitoo/sdk@0.0.3`。能力、任务、资源包声明契约版本：1。
+
+包命名已统一为 `@sitoo/sdk`。从历史 `@pi-market/sdk` 迁移时，同时修改 package.json 依赖、源码 import（包括 `/ui`、`/host`、`/mcp`）及 pnpm filter，重新安装依赖。外部项目使用新版开发工具包中的 SDK。此次不改变 SDK 0.0.3 的协议、能力契约或应用包格式；旧名称不作为新的导入别名提供。
 
 在线阅读源见[开发者文档站](./index.md)，浏览器接入见[浏览器 SDK 参考](./browser-sdk.md)，兼容规范见[标准](./standards.md)。新增能力发现、业务 JSON 存储、图像任务列表与结构化 AppSdkError。本文的可信 Host 接口不能直接暴露给第三方应用。
 
@@ -22,14 +24,14 @@
 
 ## 2. 模块与依赖
 
-根目录要求 Node >=24，使用 pnpm workspace、ESM 和严格 TypeScript。应用依赖声明 `"@pi-market/sdk": "workspace:*"`，沿用仓库 tsconfig；实际运行需支持当前 TypeScript 源码入口。
+根目录要求 Node >=24，使用 pnpm workspace、ESM 和严格 TypeScript。应用依赖声明 `"@sitoo/sdk": "workspace:*"`，沿用仓库 tsconfig；实际运行需支持当前 TypeScript 源码入口。
 
 | 入口                | 用途与边界                                                                                       |
 | ------------------- | ------------------------------------------------------------------------------------------------ |
-| @pi-market/sdk      | manifest、契约、任务/产物、catalog、命令/schema、配置声明、资源包/图像类型；无 Host 文件存储 API |
-| @pi-market/sdk/host | ApplicationHost、ApplicationProvider、AppApprovalTarget、AppConfigState；仅可信服务端/主进程     |
-| @pi-market/sdk/mcp  | registerAppCapabilities；使用官方 MCP SDK 的可信服务端桥                                         |
-| @pi-market/sdk/ui   | createAppClient；只在平台的隔离应用 iframe 内使用，不暴露完整 Desktop API                        |
+| @sitoo/sdk      | manifest、契约、任务/产物、catalog、命令/schema、配置声明、资源包/图像类型；无 Host 文件存储 API |
+| @sitoo/sdk/host | ApplicationHost、ApplicationProvider、AppApprovalTarget、AppConfigState；仅可信服务端/主进程     |
+| @sitoo/sdk/mcp  | registerAppCapabilities；使用官方 MCP SDK 的可信服务端桥                                         |
+| @sitoo/sdk/ui   | createAppClient；只在平台的隔离应用 iframe 内使用，不暴露完整 Desktop API                        |
 
 浏览器消费声明，权威 schema 校验在服务端，勿为此放开 unsafe-eval。应用不导入 `@earendil-works/*` 或 Desktop 内部 Runtime，不维护第二份 Agent loop。
 
@@ -46,8 +48,8 @@ import {
   parseAppCommand,
   type AppInvocationContract,
   type RegisteredApp,
-} from '@pi-market/sdk';
-import { ApplicationHost, type ApplicationProvider } from '@pi-market/sdk/host';
+} from '@sitoo/sdk';
+import { ApplicationHost, type ApplicationProvider } from '@sitoo/sdk/host';
 
 const contract: AppInvocationContract = {
   contractVersion: 1,
@@ -245,8 +247,8 @@ AppContractError.code 可供程序处理，以下是当前常见值，不是永�
 仓库根目录运行：
 
 ```powershell
-node node_modules/pnpm/bin/pnpm.cjs --filter @pi-market/sdk typecheck
-node node_modules/pnpm/bin/pnpm.cjs --filter @pi-market/sdk test
+node node_modules/pnpm/bin/pnpm.cjs --filter @sitoo/sdk typecheck
+node node_modules/pnpm/bin/pnpm.cjs --filter @sitoo/sdk test
 ```
 
 应用另外检查业务类型和测试：独立 UI/@ 同任务、缺任务/重名/revision 变化、跨账户、授权拒绝、票据重放、取消/重启、失败产物、收费和交付幂等。用真实临时文件、模拟费用通道及故障场景；模拟测试不代表真实上游验收。
