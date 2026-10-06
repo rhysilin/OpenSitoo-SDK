@@ -52,6 +52,8 @@ applications.images 的 getCapabilities、generate(request)、getTask(id)、list
 
 SDK 0.0.5 文本任务新增安全 errorCode、stopReason、maxTokens，失败可返回收到的 text/usage；仅 completed 且结构通过才有 value。模型记录可声明 outputTokenLimit/outputLimitSource；当前目录仅有 32768 平台预算，实际模型限制由上游校验。maxTokens 范围 128–32768，默认 8192；不会自动续写或重试，旧任务不补造结束原因。
 
+图片自动保存兼容 CDN 的 application/octet-stream 或缺失 Content-Type：核验 PNG/JPEG/WebP 文件签名后仍须经宿主真实解码，保持下载大小、像素及输出大小限制，不接受 HTML/SVG 伪装。已生成任务仅重试下载与保存，不重新生图；保存提示区分安全的 HTTP、类型及解码错误。
+
 | 方法                              | 参数                                  | 返回及边界                                                                                                                                             |
 | --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | applications.market               | 无                                    | AppMarketState，签名目录、当前账户安装项、离线 warning                                                                                                 |

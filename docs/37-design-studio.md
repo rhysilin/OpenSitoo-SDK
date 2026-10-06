@@ -1,6 +1,8 @@
 # 设计工作室：独立应用验证
 
-应用版本 0.1.1，要求 SDK >=0.0.5。业务源码在 apps/design-studio，独立静态 UI，通过公开 `@sitoo/sdk/ui` 调用平台，不导入 Desktop IPC、Pi、账户凭据或上游网络客户端。
+应用版本 0.1.2，要求 SDK >=0.0.5。业务源码在 apps/design-studio，独立静态 UI，通过公开 `@sitoo/sdk/ui` 调用平台，不导入 Desktop IPC、Pi、账户凭据或上游网络客户端。
+
+0.1.2 区分生图与保存占位文案；共享 Desktop 保存链路兼容二进制响应头并验证图片内容，不重新生图。
 
 ## 使用流程
 
@@ -20,8 +22,8 @@
 ```powershell
 node apps/design-studio/build.mjs
 node scripts/app-toolkit.mjs
-node release/developer-kit/sitoo-app.mjs pack apps/design-studio release/apps/sitoo-design-0.1.1.spkg
-node release/developer-kit/sitoo-app.mjs check release/apps/sitoo-design-0.1.1.spkg
+node release/developer-kit/sitoo-app.mjs pack apps/design-studio release/apps/sitoo-design-0.1.2.spkg
+node release/developer-kit/sitoo-app.mjs check release/apps/sitoo-design-0.1.2.spkg
 ```
 
 源码构建使用 React、Base UI Button 与 assistant-ui 开源 ImageGeneration/surfaces 组件，保持品牌色、留白与阅读层级。工作区可复用已安装构建依赖；外部开发者安装开发工具包中的 SDK，并将 package.json 的 workspace 依赖改为实际本地 SDK 安装路径，再安装其声明的前端依赖。不要求其他应用使用同一前端框架。
