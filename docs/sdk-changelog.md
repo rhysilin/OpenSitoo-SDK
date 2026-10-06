@@ -1,0 +1,40 @@
+# App SDK 更新记录
+
+SDK 面向开发者的实际变化与开发者手册在同一批次更新。
+
+## 0.0.3（2026-10-06）
+
+- /ui 新增 platform.getCapabilities：宿主 SDK 版本、应用身份、开放功能与容量限制；textInference 明确为未开放。
+- /ui 新增账户/应用隔离 JSON 业务存储 get/list/put/delete，原子保存、revision 冲突、版本墓碑与尺寸/数量配额；不是凭据存储，不提供自动迁移。
+- /ui 新增 images.listTasks，重新打开应用可查询自身任务。按 requestId 查询仍待开放。
+- AppSdkError 保留 code/retryable/action；应用 IPC 到浏览器的错误传递统一，隐藏宿主路径与堆栈。dispose 后拒绝新调用。
+- Markdown 手册生成 VitePress 开发者文档站，本地搜索，无需动态文档服务。
+- 加法接口保持能力契约和包格式版本 1；固定 sdkRange=0.0.2 的应用评估后调整兼容范围并重新打包。旧 UI 客户端仍可调用原接口，但新版错误对象不再是单个字符串。
+- 应用界面仍自行选型；Desktop 的 assistant-ui 风格不作为应用 SDK 约束。
+
+## 0.0.2（2026-10-06）
+
+- 静态 AppPackage 格式 1，包路径、能力绑定、尺寸与摘要声明。
+- /ui 浏览器受控客户端；invoke、图像能力查询、任务查询及产物读取。
+- 随包资源声明、兼容与内容摘要核验；只读资源桥，生图请求保存资源快照、版本和平台任务 ID。
+- 应用普通配置的受控浏览器接口；有界任务轮询订阅，不自动重提失败/未知的付费请求。
+- 可信 catalog 动态 add/remove 与 Host unregister。
+- 图像 generate 新增可选 requestId，旧调用兼容；平台沿用原审批与持久幂等逻辑。
+- 独立 SDK JavaScript/类型包、外部应用样例和 create/pack/check/init-market/publish 工具。
+- Desktop 签名市场、静态安装/升级/回滚和隔离 iframe；不开放任意第三方后端。
+- 固定 sdkRange=0.0.1 的应用需评估后更新兼容范围；能力契约版本仍 1。
+
+## 0.0.1 当前基线（2026-10-06 整理）
+
+此条整理现有实现，不表示以下功能在该日期新增。
+
+- 根入口、/host、/mcp；private workspace 包。
+- AppCatalog、RegisteredApp、能力契约版本 1，schema/semver 校验。
+- 本地帮助、命令解析/格式化、MCP 能力桥。
+- AppTask / AppOutput；Provider 负责持久化、执行与恢复。
+- 账户配置、revision、主进程加密凭据。
+- 绑定目标与账户的 60 秒一次性审批票据。
+- AppImages 与共享平台生图配置。
+- 资源包声明与快照；没有下载、解压、签名或实际内容核验器。
+- defineApp / AppToolDefinition 已弃用；新应用用 AppCatalog / ApplicationProvider。旧领域 AppRunReference 保留，通用任务使用 AppTask。
+- 新增开发者手册，修正 README 旧模板。安装器、通用调度器及第三方沙盒尚未实现。

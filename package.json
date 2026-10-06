@@ -1,0 +1,18 @@
+{
+  "name": "opensitoo-developer-docs",
+  "version": "0.0.3",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "docs:dev": "vitepress dev docs --host 127.0.0.1 --port 18683",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs --host 127.0.0.1 --port 18682",
+    "build": "npm run docs:build"
+  },
+  "devDependencies": { "vitepress": "1.6.4" },
+  "overrides": {
+    "vue": "3.5.13",
+    "@vue/shared": "3.5.13"
+  }
+}

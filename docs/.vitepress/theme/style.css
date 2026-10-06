@@ -1,0 +1,10 @@
+:root {
+  --vp-c-brand-1: #c71935;
+  --vp-c-brand-2: #e5273e;
+  --vp-c-brand-3: #e5273e;
+  --vp-c-brand-soft: rgba(229, 39, 62, 0.12);
+}
+.dark {
+  --vp-c-brand-1: #ff7184;
+  --vp-c-brand-2: #ff4d68;
+}
