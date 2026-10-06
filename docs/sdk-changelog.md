@@ -4,6 +4,8 @@ SDK 面向开发者的实际变化与开发者手册在同一批次更新。
 
 ## 0.0.4（2026-10-06）
 
+- Desktop 桥修复批量初始化误报并发过多：保留 4 个执行槽，新增最多 32 个待执行请求的队列；不重放生成或写入。SDK 接口和版本不变，更新 Desktop 即可，无需重打应用包。
+
 - 静态能力绑定新增 `text.generate`，须在 manifest 和能力声明 `text:generate`。Desktop 通过 Runtime Adapter 的 Pi 官方 pi-ai 接口执行单次文本推理；不开放 Agent 工具、任意网络、文件访问或模型凭据。
 - 浏览器新增 `text.listModels/getTask/listTasks`。模型来自当前账户已启用的兼容平台模型，生成能力返回持久后台任务；任务 ID 等于 requestId，页面重开可查询。无流式事件或上游取消保证。
 - 文本请求支持 prompt、instructions、maxTokens 与 Draft-07 responseSchema；宿主校验输出，结构错误为 failed，网络/中断结果为 unknown，不自动重试。同一请求 ID 与参数、包摘要绑定，账户与应用隔离。

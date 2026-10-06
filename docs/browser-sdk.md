@@ -11,6 +11,8 @@ if (platform.features.storage !== 1) throw new Error('请更新 Desktop');
 
 无打包工具时可使用开发工具包的 `sitoo-app-client.js`，复制到应用 payload，通过本地 ES module 导入。
 
+可并行读取初始化状态。Desktop 桥每个 iframe 会话执行最多 4 个请求，另允许最多 32 个排队；队列满返回 BUSY。关闭页面会丢弃未执行请求，不自动重试已经开始的操作。桥排队和模型生成任务并发限制分别生效；正常六项初始化读取无需应用自行串行。
+
 ## 能力发现
 
 `platform.getCapabilities()` 返回 protocolVersion、sdkVersion、appId、appVersion、features 和 limits。features 包含 configuration、resources、storage、imageTasks、textInference。配置/资源是否存在及模型能力权限来自已安装包；imageTasks 不代表模型已经配置，需另调用 `images.getCapabilities()`。textInference 表示宿主已开放接口且应用声明了文本权限，不代表当前已有可用模型。

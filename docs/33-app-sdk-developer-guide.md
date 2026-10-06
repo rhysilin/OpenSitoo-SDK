@@ -271,6 +271,8 @@ manifest 和能力均声明 `text:generate`，binding 使用 `text.generate`。�
 
 Desktop 使用 Runtime Adapter 的 Pi 官方 pi-ai 单次补全，通过已有账户通道注入凭据，无工具、无独立 Agent 会话。应用自己组装领域需求与资源规则，SDK 不包含设计、海报等业务模板。实际 JSON Schema 输出核验、请求 ID 去重、并发、失败恢复和账户边界是通用平台职责。详细参数、限制、计费与 unknown 处理见[浏览器 SDK](./browser-sdk.md)。
 
+浏览器客户端可并行读取初始化状态；Desktop 桥每会话最多执行 4 个请求，最多排队 32 个，队列满才返回 BUSY。关闭页面会丢弃尚未执行的请求；不会重试已经开始的生成或写入。SDK 仍为 0.0.4，无需重新打包应用即可获得新版 Desktop 的桥修复。
+
 需要新版 Desktop 和 SDK >=0.0.4；旧应用原有能力兼容，包格式与浏览器协议不变。设计工作室的外部应用验证说明见[设计应用开发与使用](./37-design-studio.md)。
 
 ## 14. 手册持续更新
