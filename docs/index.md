@@ -1,40 +1,57 @@
 ---
 layout: home
 hero:
-  name: Sitoo App SDK
-  text: 开发专业应用，接入统一平台能力
-  tagline: 独立界面、对话调用、受控能力与可验证的发布流程。
+  name: OpenSitoo
+  text: 开发应用，共享能力
+  tagline: 为 OpenSitoo 开发应用界面，调用平台服务，或让多个应用复用同一业务能力。
+  image:
+    src: /opensitoo-logo-s.webp
+    alt: OpenSitoo
   actions:
     - theme: brand
-      text: 创建第一个应用
-      link: /35-developer-kit-quickstart
+      text: 开始开发
+      link: /getting-started/overview
     - theme: alt
-      text: 浏览器 SDK
-      link: /browser-sdk
+      text: 查阅 SDK 与 API
+      link: /reference/
+    - theme: alt
+      text: 下载开发工具
+      link: /downloads
 features:
-  - title: 独立开发
-    details: 使用独立开发工具创建、检查和打包静态应用，无需修改 Desktop 源码。
-  - title: 受控平台能力
-    details: 平台负责账户、审批、文本推理、生图和业务数据隔离。应用拥有自己的 UI/UX。
-  - title: 独立分发
-    details: 使用 spkg 和 TUF 签名市场安装、升级与回滚。
+  - title: 开发应用界面
+    details: 用 HTML、CSS 和 JavaScript 创建静态应用，通过应用页面 SDK 调用已授权的平台服务。
+    link: /getting-started/static-app
+  - title: 一个实现，多个入口
+    details: 独立界面与授权对话消费同一业务能力，保留原任务与结果。
+    link: /capabilities/overview
+  - title: 精确接口参考
+    details: 按应用客户端、开发协议和可信宿主区分SDK、参数与返回类型。
+    link: /reference/
+  - title: 可维护的发布
+    details: 独立版本、签名、安装事务与兼容更新，管理多个应用。
+    link: /publishing/monorepo
 ---
 
-## 当前可用范围
+## 你可以开发什么
 
-SDK 0.0.6，浏览器协议 `sitoo-app-v1`，应用包格式 1。支持静态 HTML/CSS/JavaScript 界面、普通配置、项目/草稿 JSON 存储、随包资源、生图任务查询与平台能力绑定。工作区 SDK 尚未发布到公共 npm，开发者使用独立工具包中的 SDK。
+如果你想做一个有独立界面的工具，例如文案编辑器或图片工作台，可以从**静态应用**开始。页面运行在 OpenSitoo 客户端提供的隔离容器中，通过应用页面 SDK 使用已开放且已授权的文本、图片、配置和数据接口。
 
-完整 Agent 执行、任意第三方后端、独立资源包市场和外部应用自然语言编排仍待实现。能力发现返回真实支持状态；不要将类型声明视为宿主已开放能力。
+如果同一段业务逻辑需要被多个应用，或应用页面与对话入口共同使用，可以开发**共享能力**。例如，两个编辑工具都调用同一个文本标准化能力；能力有自己的输入、输出和版本，调用的任务与结果由宿主管理。
 
-## 阅读顺序
+[先了解应用、能力和宿主](/getting-started/overview)，再选择下面的路径。本文档面向应用开发者和可信宿主集成者；已开放能力及环境限制见[版本与支持范围](/getting-started/compatibility)。
 
-1. [快速开始与发布](./35-developer-kit-quickstart.md)：创建项目、开发包安装、签名上架。
-2. [浏览器 SDK](./browser-sdk.md)：能力发现、保存草稿、任务恢复与错误处理。
-3. [标准与兼容性](./standards.md)：版本、权限、schema 和发布约束。
-4. [SDK 手册](./33-app-sdk-developer-guide.md)与[接口参考](./34-api-reference.md)：区分公开应用接口、可信宿主和内部 IPC。
+## 选择开始路径
 
-## 文档维护与部署
+| 你的目标 | 从哪里开始 | 所需工具 |
+| --- | --- | --- |
+| 开发 HTML/CSS/JavaScript 应用界面 | [第一个静态应用](/getting-started/static-app) | App 开发工具包 |
+| 两个应用复用一项业务能力 | [第一个共享应用](/getting-started/quickstart) | 共享能力开发工具包、能力包管理工具 |
+| 集成可信宿主或查找精确契约 | [SDK 与 API 导航](/reference/) | 按接口区分应用端与可信宿主端 |
 
-正文来自仓库 Markdown，构建时生成网站，不维护第二份内容。执行 `npm run docs:build`，将 `release/developer-docs` 部署到静态 HTTPS 站点。子路径部署在构建时指定 `SITOO_DOCS_BASE=/developers/`。本地预览使用 `npm run docs:preview`，地址为 `http://127.0.0.1:18682/`。网站无需登录或新增动态服务，不含市场私钥和用户凭据。
+## 先准备工具和运行环境
 
-更新 SDK 公共契约必须同步更新手册、浏览器参考、CHANGELOG 与运行示例，并验证文档构建与链接。
+打开[开发工具下载](/downloads)获取 ZIP、版本与校验值，再按[环境与工具](/getting-started/setup)准备 Node.js。构建应用本身不要求取得 Desktop 源码。
+
+运行应用还需要对应宿主和授权环境。应用页面 SDK 由宿主接入，普通浏览器打开 HTML 不会自动获得平台能力。工具包不包含客户端安装程序、账户或令牌；接入条件请先查看[支持范围](/getting-started/compatibility)。
+
+[查阅接口参考](/reference/) · [查看完整示例入口](/support/examples) · [遇到问题](/support/troubleshooting)

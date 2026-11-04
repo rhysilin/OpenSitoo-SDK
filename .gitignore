@@ -1,7 +1,6 @@
 node_modules/
-docs/.vitepress/dist/
 docs/.vitepress/cache/
-.wrangler/
-.env
-.env.*
-*.log
+docs/.vitepress/dist/
+artifacts/
+archives/
+.env*

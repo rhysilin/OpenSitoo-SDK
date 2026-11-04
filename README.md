@@ -1,40 +1,15 @@
 # OpenSitoo 开发者文档
 
-独立维护的开发者文档站，使用 VitePress。当前记录 App SDK 0.0.6 的真实能力、公开契约与开发发布流程。此仓库仅包含文档站，不包含 Desktop、SDK 实现或用户数据。
+正式开发者文档站，包含应用与共享能力开发指南、SDK/API参考、发布维护说明及工具下载。当前SDK0.0.11、能力工具0.39.0。
 
-## 本地开发
+生产站点：https://opensitoo-sdk.pages.dev/
 
-使用 Node.js 22 或 24：
+## 本地运行
 
-```sh
-npm ci
-npm run docs:dev
-npm run docs:build
-npm run docs:preview
-```
-
-构建输出为 `docs/.vitepress/dist`，支持静态 HTTPS 托管。
+需要Node.js24.11.1。执行 `npm ci`、`npm run docs:dev`；发布检查执行 `npm run docs:build`。
 
 ## Cloudflare Pages
 
-通过 GitHub 集成部署 `rhysilin/OpenSitoo-SDK`：
+生产分支main，构建命令 `npm run docs:build`，输出目录 `docs/.vitepress/dist`。构建先检查58页正文、197个接口导出及公开下载摘要，再生成正式站；本地通用构建产物同时保留在artifacts/site。
 
-| 设置 | 值 |
-| --- | --- |
-| 生产分支 | `main` |
-| 根目录 | 仓库根目录 |
-| 构建命令 | `npm run docs:build` |
-| 输出目录 | `docs/.vitepress/dist` |
-| 环境变量 | `NODE_VERSION=24` |
-
-推送 main 自动发布生产站点，其他分支构建预览。无需数据库、账户服务或前端密钥。
-
-## 维护规则
-
-- API 与 SDK 契约正文必须与平台实际实现保持一致，明确公开 SDK、内部 IPC、私有桥与规划能力的边界。
-- 修改 SDK 接口时，同步修改对应手册、浏览器参考、示例与 `docs/sdk-changelog.md`。
-- 提交前运行 `npm ci` 和 `npm run docs:build`，检查导航与搜索。
-- 不提交生成产物、市场签名私钥、用户凭据或本地配置。
-
-初始文档来自 Desktop 提交 `ceb2619`。后续平台契约变更应同步到此仓库；排版、导航与托管配置可以独立维护。
-
+`deployment.json`记录实际构建提交，可用于核对部署。旧文档URL提供301跳转，历史下载包保留。维护源码同步时保留本仓库Git历史，不强推。此仓库仅包含文档、公开资源及必要构建元数据；不需要平台源码、密钥或运行数据库。

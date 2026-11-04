@@ -1,0 +1,259 @@
+{
+  "sdk": {
+    "introduction": "App SDK 0.0.11：安装与导入见[环境设置](/getting-started/setup)，契约与命令见[应用指南](/guides/contracts)。普通页面只导入 /ui；下面的契约和类型供作者及可信集成使用。",
+    "symbols": {
+      "AiRuntime": "运行器声明：pi/custom/none 表示集成选择，不让静态包取得自带原生执行权。 相关操作见[指南](/guides/contracts)。",
+      "AppManifest": "应用身份与运行声明。id 为应用标识，version 为应用 SemVer，sdkRange 为兼容范围，permissions 为整体权限，ui.entry 是包内 HTML；packageDependencies 为可信集成的环境/工作区依赖，不是共享能力安装闭包。 相关操作见[指南](/guides/contracts)。",
+      "AppToolResult": "旧工具返回的展示文字 text 与可选 details；不作为审批或任务状态凭据。 相关操作见[指南](/guides/contracts)。",
+      "AppDefinition": "旧工具模板的 manifest 与 tools 组合；新应用使用 RegisteredApp 与 invocation 契约。 相关操作见[指南](/guides/contracts)。",
+      "AppRunStatus": "旧运行状态：草稿、扫描、审阅、交付中、完成、失败、取消；不含共享 unknown。 相关操作见[指南](/guides/contracts)。",
+      "AppArtifact": "旧运行产物：id 标识、kind 目录/清单/报告、path 为可信宿主产物路径，mediaType 可选；普通页面不能据此访问任意文件。 相关操作见[指南](/guides/contracts)。",
+      "AppRunReference": "旧运行引用：应用/版本、契约版本、并发修订、更新时间与产物。它是状态记录，不签发操作权。 相关操作见[指南](/guides/contracts)。",
+      "AppCapabilityContract": "能力元数据与输入 schema；requiresTask/requiresConfirmation 描述执行需求，批准由宿主完成。examples 是可展示的命令字符串数组，不是参数对象数组。 相关操作见[指南](/guides/contracts)。",
+      "AppInvocationContract": "整个应用的调用契约；appId/version 与 manifest 一致，uiEntry 指向包内入口，capabilities 列出可调用能力，help 为帮助文字。 相关操作见[指南](/guides/contracts)。",
+      "AppCommandReply": "命令回应：success 为同步成功；processing 为仍在处理；needs-input 等待输入；needs-approval 等待可信确认。runId/revision 如存在，用于原状态关联。 相关操作见[指南](/guides/contracts)。",
+      "AppAttachment": "宿主归属隔离的 PNG 副本，bytes 为字节数，dataUrl 用于预览。只保存 id 引用到草稿，大小与配额见[附件](/guides/resources)。 相关操作见[指南](/guides/contracts)。",
+      "AppImageReference": "已有附件的 id 和文字 description；最多 8 项，说明最多 500 字符，不能传路径或跨应用 ID。 相关操作见[指南](/guides/contracts)。",
+      "AppImageUpload": "标准化 PNG 的 name 与 dataUrl；由页面准备受限输入，宿主再校验。上传不发起模型请求，详见[附件](/guides/resources)。 相关操作见[指南](/guides/contracts)。",
+      "validateAppSchema": "检查输入的 schema 是否可由应用契约使用；成功无返回值，非法 schema 抛 AppContractError。不会运行应用。 相关操作见[指南](/guides/contracts)。",
+      "validateAppValue": "按给定 schema 校验未知输入，成功返回参数对象；无效值抛 AppContractError。只验证，不执行命令或授权。 相关操作见[指南](/guides/contracts)。",
+      "parseAppCommand": "解析命令或帮助，输入是本契约与用户字符串；返回 help/natural/command 分支。natural 只是未命中显式命令，不自动请求模型。parameters 是解析得到的字符串字典，调用前需按能力 schema 解释与校验。 相关操作见[指南](/guides/contracts)。",
+      "formatAppCommand": "按已声明的 abilityId 与参数生成可解析命令字符串；校验能力及输入，不调用业务。与 parseAppCommand 配套使用。 相关操作见[指南](/guides/contracts)。",
+      "appHelp": "返回整个契约或指定能力的 AppCommandReply；abilityId 省略时为应用帮助。只展示帮助，无收费和执行。 相关操作见[指南](/guides/contracts)。",
+      "APP_SDK_VERSION": "实际 SDK 版本常量 0.0.11；不能代替宿主 getCapabilities 的运行版本。 相关操作见[指南](/guides/contracts)。",
+      "AppTaskStatus": "静态应用通用任务枚举；其 completed/failed 不提供所有上游任务语义，文本、图片和共享状态各用对应类型。 相关操作见[指南](/guides/contracts)。",
+      "AppTask": "应用任务快照。revision 用于并发审查，phase/progress 供展示，artifacts 是交付项，error 为安全码/文字，resourceSnapshots 记录原资源版本。 相关操作见[指南](/guides/contracts)。",
+      "AppOutput": "任务交付项 id/kind，name/mediaType 可选，resource.type 为 local-file/local-directory/url，resource.value 为引用；bytes/sha256 可选用于摘要记录，不是任意文件读取接口。",
+      "AppConfigurationContract": "配置声明：version 为配置格式整数，schema 校验普通 values，defaults 为初始值，credentials 描述可信宿主凭据槽；静态包不支持凭据槽。 相关操作见[指南](/guides/contracts)。",
+      "RegisteredApp": "新应用的 manifest、invocation、可选 configuration/resourcePacks。AppCatalog 校验一致性；发布文件按[静态打包](/publishing/static-packages)生成。 相关操作见[指南](/guides/contracts)。",
+      "AppContractError": "契约、schema 或命令格式错误；可信集成应展示安全 message，修正输入，不重试业务执行。 相关操作见[指南](/guides/contracts)。",
+      "AppCatalog": "可信应用注册表。构造参数 apps 为既有 RegisteredApp 数组；add 校验并增加应用，remove(id) 移除注册，get(id) 取得应用，list 返回注册列表。重复或无效契约拒绝；不是安装、签名或收费授权。",
+      "appResourcePackSchema": "随包资源结构 schema；使用校验工具而非直接把 TypeScript 对象视为有效资源。 相关操作见[指南](/guides/contracts)。",
+      "AppResourcePack": "资源包身份、目标应用、兼容范围、分类和许可；resources 每项提供 kind/path/sha256/license/attribution。限制及读取见[资源指南](/guides/resources)。 相关操作见[指南](/guides/contracts)。",
+      "AppResourceSnapshot": "原资源包 packId/version/sha256 三字段用于追溯；不会随当前包更新自动改变。",
+      "SitooImageRequest": "生图参数：prompt 必填；aspectRatio、resolution、references 可选，支持值由 getCapabilities 返回，references 是允许的图像 URL。附件字段遵循实际绑定 schema；不能用此类型加入密钥。 相关操作见[指南](/guides/contracts)。",
+      "SitooImageConfiguration": "可信平台图像配置，revision 为并发修订，enabled/group/model 与尺寸约束决定生成，confirmBeforeGenerate 为兼容审批字段。应用不能自行配置上游秘密。 相关操作见[指南](/guides/contracts)。",
+      "SitooImageTask": "图片任务持久快照：id/caller/status、request/configuration、时间、可选 gatewayTaskId/progress/artifacts/error。各状态与产物读取见[图片指南](/guides/images)。 相关操作见[指南](/guides/contracts)。",
+      "SitooImageCapabilities": "真实可用配置：enabled/configured、model、比例/分辨率、maxReferences；cancellation=false 不支持上游取消。imageTasks=true 不保证配置可用。 相关操作见[指南](/guides/contracts)。",
+      "AppImages": "可信应用图像客户端 getCapabilities/generate/getTask/listTasks/getArtifact，宿主绑定 caller；不提供配置写入或取消。普通页面使用 /ui 子集。",
+      "AppImageProvider": "可信图像实现 getCapabilities 及按 caller 隔离的 generate/getTask/listTasks/getArtifact；页面不能自行注册，生成与任务完成分开。",
+      "safeAppPath": "校验包内相对路径并返回安全路径，拒绝绝对路径、穿越和非法路径；只做词法校验，不是 OS 文件系统隔离。 相关操作见[指南](/guides/contracts)。",
+      "validateAppPackage": "校验未知静态包对象，返回 AppPackage；结构或契约不合法抛安全错误，不验市场 TUF 来源或安装授权。 相关操作见[指南](/guides/contracts)。",
+      "appPackageSchema": "静态 .spkg 清单结构 schema；files 的实际摘要与内容仍需打包器/安装器核查。 相关操作见[指南](/guides/contracts)。",
+      "AppPackage": "static-platform 清单包含 app、bindings 与 files。尺寸、摘要、路径和发布步骤见[静态打包](/publishing/static-packages)。 相关操作见[指南](/guides/contracts)。",
+      "appErrorDetails": "将未知错误转换为安全 code/message/retryable/action，不序列化堆栈、路径或任意对象；见[页面错误处理](/guides/browser-client)。 相关操作见[指南](/guides/contracts)。",
+      "AppPlatformCapabilities": "当前应用身份与 SDK 版本、features 和以字节/条数计的 limits；可选 feature 缺失按不可用处理。 相关操作见[指南](/guides/contracts)。",
+      "AppDataSummary": "记录列表元数据，含 id/revision/version/updatedAt，不含 value；分页后 get 读取详情。 相关操作见[指南](/guides/contracts)。",
+      "AppDataRecord": "完整记录：value 是 JSON 对象，deleted 标记墓碑；revision 为宿主并发修订，version 是应用数据格式。 相关操作见[指南](/guides/contracts)。",
+      "AppDataPage": "items 为未删除记录元数据，nextCursor 可选，缺失表示已到末页；列表不是并发快照。 相关操作见[指南](/guides/contracts)。",
+      "AppDataQuery": "cursor 为上一页末尾 id；limit 默认 50，上限 100。不要把 cursor 当数字 offset。 相关操作见[指南](/guides/contracts)。",
+      "AppDataWrite": "完整 JSON 写入，id 合法记录标识、revision 为编辑起点修订（新建为 0）、version 正整数；冲突让用户合并，见[存储](/guides/storage)。 相关操作见[指南](/guides/contracts)。",
+      "AppErrorDetails": "安全错误字段。action 指定 none/login/reload/resolve-conflict/query-task；retryable 不允许自动重试生成。 相关操作见[指南](/guides/contracts)。",
+      "AppSdkError": "页面 SDK 抛出的 Error 子类，保留 code/retryable/action 与安全 message；构造只包装错误，不触发恢复。 相关操作见[指南](/guides/contracts)。",
+      "AppTextModel": "账户启用的模型记录。id 为不透明标识，name/group/price 展示；outputTokenLimit 如存在与 outputLimitSource 一起解释，platform 预算不保证模型真实上限。 相关操作见[指南](/guides/contracts)。",
+      "AppTextRequest": "model/prompt 必填；instructions、maxTokens、responseSchema、attachments 可选。限制、默认预算与失败恢复见[文本任务](/guides/text)。 相关操作见[指南](/guides/contracts)。",
+      "AppTextTask": "id 等于原 requestId，状态 running/completed/failed/unknown；仅 completed 使用 text/value，usage 不等于账单，失败可能有部分文本和安全原因。 相关操作见[指南](/guides/contracts)。",
+      "AppTextProvider": "可信文本模型适配器，listModels/generate/getTask/listTasks 按 appId 隔离；generate 可能收费，不用于查询恢复。 相关操作见[指南](/guides/contracts)。",
+      "AppAgentConfiguration": "本应用会话 model 和 instructions 必填；reasoningEffort 可选且须宿主支持。启用权限与费用见[应用对话](/guides/agent)。 相关操作见[指南](/guides/contracts)。",
+      "AppAgentMessage": "会话消息 id/role/text；可选 error/stopped 表示回复错误或停止，不等于撤销上游费用。 相关操作见[指南](/guides/contracts)。",
+      "AppAgentState": "closed/ready/running/error 状态及 messages；可选 sessionId、reasoningEffort/Levels、contextUsage、error。上下文 tokens 可为 null，不能当成 0。 相关操作见[指南](/guides/contracts)。",
+      "AppAgentSend": "用户主动发送 requestId UUID、text；context/attachments 可选。重复或响应未知先查会话，不换 ID 重发。 相关操作见[指南](/guides/contracts)。",
+      "AppAgentProvider": "可信会话与语音实现，按 appId 隔离；open/send 返回状态快照，stop/reset/getState 操作原会话，不注册工具执行权。 相关操作见[指南](/guides/contracts)。",
+      "AppReasoningEffort": "可声明 off/minimal/low/medium/high/xhigh/max；实际选择以宿主 reasoningLevels 为准，不保证所有模型支持。 相关操作见[指南](/guides/contracts)。",
+      "AppDictationState": "语音转写 idle/starting/running/ended、text 和可选安全 error；转写结果不自动发送，依赖宿主麦克风和服务。 相关操作见[指南](/guides/contracts)。",
+      "defineApp": "已弃用的旧工具定义包装器，仅兼容旧应用；新开发使用 RegisteredApp。 相关操作见[指南](/guides/contracts)。",
+      "AppToolDefinition": "旧工具 name/description/schema/execute 声明，仅可信模板兼容使用，不让新静态应用注册任意执行器。 相关操作见[指南](/guides/contracts)。"
+    }
+  },
+  "ui": {
+    "introduction": "从 @sitoo/sdk/ui 或静态模板 client.js 导入。无需参数，身份由当前宿主绑定。完整初始化、功能发现和释放代码见[页面指南](/guides/browser-client)。返回 Promise 的操作可能抛 AppSdkError；超时与可重试标记不授权自动重放。",
+    "symbols": {
+      "createAppClient": "建立当前应用页面客户端；无参数。各方法、参数与返回/错误见本页操作表及[初始化示例](/guides/browser-client)，账户/应用身份不可传入。 相关操作见[指南](/guides/browser-client)。",
+      "AppSdkError": "页面 SDK 抛出的 Error 子类，保留 code/retryable/action 与安全 message；构造只包装错误，不触发恢复。 相关操作见[指南](/guides/browser-client)。",
+      "appErrorDetails": "将未知错误转换为安全 code/message/retryable/action，不序列化堆栈、路径或任意对象；见[页面错误处理](/guides/browser-client)。 相关操作见[指南](/guides/browser-client)。"
+    }
+  },
+  "capabilities": {
+    "introduction": "从 @sitoo/sdk/capabilities 导入，客户端需要可信宿主提供的 transport。返回 ProtocolValidation，业务错误通过 ok=false 判断；传输异常仍可能拒绝 Promise。完整页面及 CLI 使用见[共享教程](/getting-started/quickstart)。",
+    "symbols": {
+      "createCapabilityClient": "transport 必填，由宿主提供 submit/get/cancel/list 和可选 artifact。客户端校验/快照输入输出，不创建权限。dispose 释放客户端；提交未知结果先查询原任务。 相关操作见[指南](/capabilities/pages)。",
+      "CapabilityRequest": "四字段 wire 请求：protocolVersion=1、requestId UUID、capabilityId namespace/name、input JSON。禁止额外身份、令牌、URL字段，完整限制见[协议](/capabilities/protocol)。 相关操作见[指南](/capabilities/pages)。",
+      "CapabilityResponse": "响应关联原 requestId：success.value、accepted.task、error.error 三个互斥分支；accepted 不是业务完成。 相关操作见[指南](/capabilities/pages)。",
+      "ProtocolValidation": "成功 ok=true/value，失败 ok=false/error；先判断 ok，再读取对应分支。不是 HTTP 状态码或权限票据。 相关操作见[指南](/capabilities/pages)。",
+      "AppCapabilityTask": "能力 SDK 原任务快照，binding 固定原包版本摘要，revision 是宿主修订，result/upstreamTask 可选，见[原任务恢复](/guides/tasks)。 相关操作见[指南](/capabilities/pages)。",
+      "AppCapabilityTransport": "可信传输适配器契约。submit 输入完整请求，get/cancel 参数为原 taskId，list 无参数，artifact 可选；不得让应用指定管理身份。 相关操作见[指南](/capabilities/pages)。",
+      "AppCapabilityArtifact": "原任务的 PNG mimeType/dataUrl；读取不生成，大小上限 16 MiB，缺少 transport.artifact 时返回不支持错误。 相关操作见[指南](/capabilities/pages)。"
+    }
+  },
+  "sdk-host": {
+    "introduction": "从 @sitoo/sdk/host 导入，仅可信 Node.js 宿主。目录、登录作用域和 Provider 由集成方提供，不可从页面输入采用。此宿主不提供进程安全隔离。静态应用消费界面与宿主注册职责见[权限指南](/guides/permissions)。",
+    "symbols": {
+      "AppDataStore": "可信账户/应用存储句柄；路径由宿主给定，get/list/put/delete 语义与[配置数据](/guides/storage)相同，不授予文件权限。 相关操作见[指南](/guides/permissions)。",
+      "APP_DATA_LIMITS": "存储默认配额，字节为 UTF-8 JSON 字节，条数包含墓碑；运行值也由 platform.getCapabilities 返回。 相关操作见[指南](/guides/permissions)。",
+      "ApplicationProvider": "可信应用的 invoke/listTasks/getTask/可选 executeApproved；批准和执行分离，不能把 executeApproved 注册成模型批准工具。 相关操作见[指南](/guides/permissions)。",
+      "AppConfigState": "当前 appId、配置格式 version、revision、普通 values；credentials 只返回存在性布尔，不返回秘密。 相关操作见[指南](/guides/permissions)。",
+      "AppApprovalTarget": "原批准目标 appId/capabilityId/taskId/revision/payload 的完整快照，任意变更应使旧票据失效。 相关操作见[指南](/guides/permissions)。",
+      "AppApprovalLedger": "可信一次性审批账本。issue(scope,target) 返回票据；consume 校验同 scope 与目标并消费；revoke 清空。仅内存，不向模型或页面暴露签发。 相关操作见[指南](/guides/permissions)。",
+      "ApplicationHost": "可信宿主绑定 catalog/root/getScope 与可选凭据加密。register/unregister 管理提供者；invoke/getTask/listTasks 按应用分派；approve/executeApproved 分离；configuration/saveConfiguration/credential 是管理接口，普通页面不能读凭据。 相关操作见[指南](/guides/permissions)。"
+    }
+  },
+  "mcp": {
+    "introduction": "从 @sitoo/sdk/mcp 导入，仅可信宿主；需要集成方创建官方 McpServer 和 ApplicationProvider。此函数注册工具，不创建认证服务或批准票据。",
+    "symbols": {
+      "registerAppCapabilities": "向官方 MCP server 注册本应用的帮助和调用工具，contract 为已校验契约，invoke 是宿主绑定回调；返回 void。只注册适配，不建立认证、目录授权或用户批准。 相关操作见[指南](/guides/contracts)。"
+    }
+  },
+  "protocol": {
+    "introduction": "独立发布工具内 protocol/index.js 可直接导入；包名入口仅用于已配置的工程，不承诺公开 npm。所有解析器返回 ProtocolValidation，纯校验不执行。完整可运行例子、预算和所有错误见[请求协议](/capabilities/protocol)。",
+    "symbols": {
+      "createCapabilityError": "code 为固定错误码，返回安全 code/message；运行时未知 code 归 INTERNAL_ERROR，不透传上游秘密。 相关操作见[指南](/capabilities/protocol)。",
+      "parseCapabilityRequest": "校验 unknown wire 请求，成功返回独立快照；错误 INVALID_INPUT/INCOMPATIBLE，不执行能力。 相关操作见[指南](/capabilities/protocol)。",
+      "parseCapabilityTaskReference": "只校验原任务引用的结构、状态和关联字段，不查数据库或赋予查询权。 相关操作见[指南](/capabilities/protocol)。",
+      "parseCapabilityResponse": "校验 unknown 响应，可选 expectedRequest 做关联校验；省略时不核对原请求。非法响应 INVALID_OUTPUT，结构和预算详见[协议](/capabilities/protocol)。 相关操作见[指南](/capabilities/protocol)。",
+      "requestSchema": "固定 wire 请求 JSON Schema，不包含所有字节预算/关联检查；应使用 parseCapabilityRequest。 相关操作见[指南](/capabilities/protocol)。",
+      "responseSchema": "固定响应 JSON Schema，额外关联和预算由 parseCapabilityResponse 检查。 相关操作见[指南](/capabilities/protocol)。",
+      "taskReferenceSchema": "固定任务引用 JSON Schema，不提供数据库状态机。 相关操作见[指南](/capabilities/protocol)。",
+      "PROTOCOL_LIMITS": "requestBytes=65536、responseBytes=131072、depth=32、nodes=8192；包含 envelope 和 UTF-8 转义，不按字符数计算字节。 相关操作见[指南](/capabilities/protocol)。",
+      "JsonValue": "合法 JSON 的 null/boolean/number/string/数组/对象；排除函数、循环、undefined、NaN/Infinity 和二进制对象。 相关操作见[指南](/capabilities/protocol)。",
+      "PROTOCOL_VERSION": "当前 wire 版本 1；与 SDK SemVer 或数据库 schema 分开。 相关操作见[指南](/capabilities/protocol)。",
+      "TASK_STATUSES": "协议允许的八个状态词，状态改变由持久任务协调器完成。 相关操作见[指南](/capabilities/protocol)。",
+      "CapabilityTaskStatus": "queued/running/needs-input/needs-approval/completed/failed/cancelled/unknown；unknown 不表示未执行。 相关操作见[指南](/capabilities/protocol)。",
+      "ERROR_MESSAGES": "固定错误码到安全英文消息映射；客户端可按 code 本地化，不插入上游原错误文本。 相关操作见[指南](/capabilities/protocol)。",
+      "CapabilityErrorCode": "协议固定错误集合，完整处理见[错误与限制](/capabilities/protocol)。 相关操作见[指南](/capabilities/protocol)。",
+      "CapabilityError": "固定 code/message 对；拒绝 stack/details 等额外字段。 相关操作见[指南](/capabilities/protocol)。",
+      "CapabilityRequest": "四字段 wire 请求：protocolVersion=1、requestId UUID、capabilityId namespace/name、input JSON。禁止额外身份、令牌、URL字段，完整限制见[协议](/capabilities/protocol)。 相关操作见[指南](/capabilities/protocol)。",
+      "CapabilityTaskReference": "taskId/requestId/capabilityId/status 原任务引用，不是授权票据，不能切换应用所有者。 相关操作见[指南](/capabilities/protocol)。",
+      "CapabilityResponse": "响应关联原 requestId：success.value、accepted.task、error.error 三个互斥分支；accepted 不是业务完成。 相关操作见[指南](/capabilities/protocol)。",
+      "ProtocolValidation": "成功 ok=true/value，失败 ok=false/error；先判断 ok，再读取对应分支。不是 HTTP 状态码或权限票据。 相关操作见[指南](/capabilities/protocol)。"
+    }
+  },
+  "packages": {
+    "introduction": "可信 Node 模块；独立工具可以通过 capability-kit/service-host.mjs 使用其重导出，CLI 覆盖其余管理操作。初始化的路径和根由操作者提供；所有存储类及时 close。签名、安装、授权和数据分别管理，指南见[安装事务](/publishing/installations)。",
+    "symbols": {
+      "verifyCapabilityPackage": "manifestJson 是原清单文本，files 为真实 Map 的原字节；成功返回冻结校验快照，不验签授权。失败、预算和格式见[目录包](/capabilities/packages)。 相关操作见[指南](/publishing/installations)。",
+      "readCapabilityPackage": "directory 是可信操作者选择的目录；异步受限读取后做内容校验，错误不返回路径；不执行源码。 相关操作见[指南](/publishing/installations)。",
+      "resolveCapabilityDependencies": "roots 为需求数组，catalog 只接本模块校验实例；确定性解析完整闭包或整体失败，不返回半计划。范围、循环和预算见[目录包](/capabilities/packages)。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityDataMigrationStore": "独立 JSON 后端 initialize/read/write/prepare/status/pending/commit/abort/rollback/close；所有参数、状态、失败与可执行演练见[数据迁移](/publishing/migrations)。不自动接 App SDK storage。 相关操作见[指南](/publishing/installations)。",
+      "DATA_MIGRATION_LIMITS": "整库根/迁移/版本预算，终态仍计账本；value 使用协议 JSON 限制，见[迁移](/publishing/migrations)。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityAuthorizationStore": "按可信 root+entry 的授权账本，read/status 只查，set 显式比较 expectedRevision；readOnly 只开已有库且拒写。参数、收据和恢复见[入口授权](/publishing/authorization)。 相关操作见[指南](/publishing/installations)。",
+      "AUTHORIZATION_LIMITS": "授权整库 384 scope、1024 终身收据、revision 最大 2147483647；不自动淘汰。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityAuthorizationPolicy": "entry、grants、完整精确 bindings；声明权限不是 grants，最多 64 个权限/绑定，不能从消费 HTTP 建立。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityAuthorization": "当前 revision、active/revoked 和 policy；revoked 使用空 grants，原 bindings 供审计。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityAuthorizationReceipt": "原 requestId/expectedRevision/authorization 历史收据，不代表当前授权仍有效。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityDataSnapshot": "dataVersion 为业务数据格式正整数，revision 为并发修订，value 完整 JSON；不同于包 SemVer。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityDataMigration": "原请求、prepared/committed/aborted/rolledBack 和 before/after 快照；历史 after 不代表当前数据。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityPackageTrust": "构造时固定可信公钥数组；verify(pkg,attestation,now?) 重验来源/环境/时间/撤销，now 默认 Date.now，不能由应用指定。 相关操作见[指南](/publishing/installations)。",
+      "signCapabilityPackage": "已校验 pkg、可信 KeyObject Ed25519 私钥和 metadata 必填，返回署名 ProtocolValidation；不发布、不安装，私钥不进入结果。 相关操作见[指南](/publishing/installations)。",
+      "SIGNATURE_LIMITS": "签名、公钥、发布记录与署名配额的固定上限；大小以字节/文本长度规则计，见[签名](/publishing/signatures)。 相关操作见[指南](/publishing/installations)。",
+      "PackageSigningMetadata": "keyId/environment/issuedAt/expiresAt；时间为 Unix 毫秒，署名区间不能超过可信公钥区间。 相关操作见[指南](/publishing/installations)。",
+      "PackageAttestation": "签名封装绑定精确 packageId/version/sha256 与环境、keyId/时间，signature 为规范 Ed25519 编码；不包含私钥。 相关操作见[指南](/publishing/installations)。",
+      "TrustedPackageKey": "操作者提供 keyId/namespace/environments/publicKeyPem/notBefore/notAfter/revoked；SPKI Ed25519 公钥不能从不可信包自动采纳。 相关操作见[指南](/publishing/installations)。",
+      "TrustedCapabilityPackage": "当前可信校验后的 package 与 attestation。序列化 JSON 不是可信对象，必须内容校验与验签重建。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityReleaseStore": "离线不可变发布库。publish 相同四维发布身份不能改内容；get 要精确 reference，当前重新验签；readOnly 不创建/发布，close 幂等。流程见[签名发布](/publishing/signatures)。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityInstallationStore": "原子安装、更新、卸载、权限预检及租约管理；每个方法的参数/返回/幂等/失败见[初装](/publishing/installations)与[生命周期](/publishing/lifecycle)。只读模式不迁移旧 schema，也不允许写入；close 幂等。 相关操作见[指南](/publishing/installations)。",
+      "INSTALLATION_LIMITS": "整库安装根 128、缓存包 128、事务 512；prepared/aborted 与历史收据保留并计配额。 相关操作见[指南](/publishing/installations)。",
+      "LEASE_LIMITS": "持久租约记录上限；已 released 仍保留原去重账本，不借回收清空原请求。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityInstallationRoot": "tenantId/accountId/applicationId/environment 四元身份，来自可信配置；应用根标识与 application 发布物一致。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityReleaseReference": "packageId/version/sha256/environment 四个精确发布字段，由 publish 返回；不用最新版、范围或近似回退。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityInstallationTransaction": "requestId/status/plan；prepared 不改变运行根，committed 为原收据，aborted 不可复用，当前根用 load。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityPackageLease": "原 taskId/requestId、active/released 与完整精确 plan；unknown 保留 active，不按时间自动释放。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityUpdatePolicy": "目标 entry 与操作者决定的 grants；不含应用自报身份或批准秘密。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityUpdateReview": "原 requestId、根 generation、plan/policy 和 required/added/removed/missing/unsupportedEntries；reviewSha256 绑定整份审查，变更后旧批准拒绝，见[预检](/publishing/lifecycle)。 相关操作见[指南](/publishing/installations)。",
+      "PackageRequirement": "packageId 与合法非空 SemVer range，解析最终得到精确版本；同包重复/自依赖拒绝。 相关操作见[指南](/publishing/installations)。",
+      "PackageCapability": "与 CapabilityDeclaration 相同但以 capabilityId/source 取代 binding；source 指向声明的 .guest，实际绑定由包摘要建立。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityPackageManifest": "quickjs-function-v1 函数包；完整字段与预算见[目录包](/capabilities/packages)，构建后才能签名安装。 相关操作见[指南](/publishing/installations)。",
+      "StaticApplicationPackageManifest": "static-application-v1 页面包，applicationId/entry 明确，capabilities 为空；唯一顶层根，不作为其他包依赖，见[发布物](/capabilities/artifacts)。 相关操作见[指南](/publishing/installations)。",
+      "InstallablePackageManifest": "三种发布物的互斥 execution 分支：Guest 函数、静态共享页面、可信宿主服务声明；不是 .spkg 格式。 相关操作见[指南](/publishing/installations)。",
+      "HostServicePackageManifest": "host-service-v1 仅接口声明，files 为空、能力无 source；执行回调来自可信宿主，见[服务接入](/capabilities/services)。 相关操作见[指南](/publishing/installations)。",
+      "VerifiedCapabilityPackage": "冻结 manifest/sha256/sources/bindings 内容快照，仅证明格式和摘要，不等于来源信任、授权或已安装。 相关操作见[指南](/publishing/installations)。",
+      "CapabilityDependencyPlan": "需求 roots、依赖先于消费者的精确 packages 和 bindings，完整快照不能作为新可信 catalog；持久计划通过安装 load 重验。 相关操作见[指南](/publishing/installations)。",
+      "PACKAGE_LIMITS": "清单 64 KiB、16 文件/能力、单源 64 KiB、总包 1 MiB、32 依赖、128 catalog、2048 搜索状态；见[目录包](/capabilities/packages)。 相关操作见[指南](/publishing/installations)。"
+    }
+  },
+  "broker": {
+    "introduction": "可信 Node 代理，可从 capability-kit/service-host.mjs 导入。注册声明与执行器、创建可信 policy 会话后才可调用；应用不能伪造 session。完整可运行[无费用宿主示例](/support/examples)演示注册、执行和关闭。",
+    "symbols": {
+      "CapabilityRegistrationError": "可信代理注册或会话构造的安全 Error，code 属协议错误集合；非法声明不得注册后继续运行。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityBroker": "注册/会话/准备/批准/执行/结果校验的可信代理，详细操作表见下方；不提供生产登录或跨进程 token。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityBinding": "原 capabilityId/packageId/version/sha256 精确绑定，后续查询与执行保持原摘要；应用不能自行选择可信版本。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityDeclaration": "binding、接口版本、输入/输出 JSON Schema、permissions、allowedEntries、delegates 和 effects；收费/外部写入按可信确认规则，声明不能授权自己。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityCallerPolicy": "可信 tenant/environment/installation/consumerApp/entry、grants 与精确 bindings；由宿主建立不可由应用 JSON 替代。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilitySession": "Broker 实例签发的内存不透明会话；不能序列化、复制 brand 或跨实现实例伪造。 相关操作见[指南](/capabilities/overview)。",
+      "NestedCapabilityInvoke": "Guest 委托的受控调用，仍由 Broker 按 delegates/grants/原绑定检查，不暴露 Node 服务函数。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityExecutionOptions": "signal 可选取消本机等待；approval 是可信同请求一次性票据，取消不承诺上游回滚。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityApproval": "同 Broker 实例签发的一次性批准凭证，不可复制/持久化/由模型创建。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityExecutor": "可信注册回调接收已校验 request、宿主 context、受控 invoke 与可选 signal/approval；返回未知值仍经 outputSchema/协议校验。 相关操作见[指南](/capabilities/overview)。",
+      "CapabilityDiagnostic": "安全诊断关联原/父 requestId、身份与 binding、嵌套 depth、outcome/code 和毫秒 durationMs；不放凭据或业务 payload。 相关操作见[指南](/capabilities/overview)。"
+    }
+  },
+  "runtime": {
+    "introduction": "可信 Node 执行器，可从公开 service-host.mjs 导入；worker.mjs 和 quickjs.wasm 必须来自同版完整工具。每次业务调用创建受限 Guest，不导入 Node、文件或网络。示例见[完整示例](/support/examples)。",
+    "symbols": {
+      "RuntimeLimits": "wallMs 总墙钟、cpuMs CPU、memoryBytes 分配预算、bridgeMs 单桥等待、maxCalls 总委托、maxPending 待答、maxConcurrent VM 并发，默认/范围见下方。 相关操作见[指南](/capabilities/packages)。",
+      "RuntimeEvent": "执行器安全事件 requestId/capabilityId/state/activeRuns/code；state 不替代持久任务终态。 相关操作见[指南](/capabilities/packages)。",
+      "DEFAULT_RUNTIME_LIMITS": "默认 wallMs=5000、cpuMs=250、memoryBytes=8388608、bridgeMs=1500、maxCalls=16、maxPending=4、maxConcurrent=8。 相关操作见[指南](/capabilities/packages)。",
+      "CapabilityRuntime": "构造合并并验证 limits；checkSource 编译真实包装器但不执行业务；createExecutor 校验原源码摘要并返回执行器；activeRuns 为当前运行数。CPU/等待中断不证明副作用未发生。 相关操作见[指南](/capabilities/packages)。"
+    }
+  },
+  "tasks": {
+    "introduction": "可信 Node 持久任务协调；数据库路径、broker/session/query 由宿主选择。submit 先保存再执行，返回快照不是最终响应；unknown 不自动重跑。公开无费用示例见[完整示例](/support/examples)，业务恢复见[任务指南](/guides/tasks)。",
+    "symbols": {
+      "LegacyTaskViews": "可信旧文本/图像查询适配，仅从配置的 readers/map 按 scope 查询；不创建或批准旧任务。 相关操作见[指南](/guides/tasks)。",
+      "CapabilityTaskViews": "已有任务库的可信只读 get/list/close，scope 不含入口但限定原四维消费归属；不启动执行或恢复 unknown。 相关操作见[指南](/guides/tasks)。",
+      "CapabilityTaskViewScope": "原 tenantId/environment/installationId/consumerAppId 四维查询范围；不能从页面输入推导。 相关操作见[指南](/guides/tasks)。",
+      "LegacyTaskView": "旧任务的只读映射，source 区分文本/图像，gatewayTaskId/text/value/artifacts 可选，不能假造缺失历史结果。 相关操作见[指南](/guides/tasks)。",
+      "LegacyTaskReaders": "可信注入文本/图像 getTask/listTasks，只读，不能传 generate。 相关操作见[指南](/guides/tasks)。",
+      "LegacyScopeMap": "可信把四维共享 scope 映射到旧 textAppId/imageCaller；未映射返回 undefined 并拒绝读取。 相关操作见[指南](/guides/tasks)。",
+      "DurableTask": "原 taskId/requestId/capabilityId/status 与精确 binding、revision/时间；result 是协议响应，upstreamTask 保存已接受原上游引用。 相关操作见[指南](/guides/tasks)。",
+      "TaskPackageLeases": "任务协调器 acquire/release 与安装库的可信适配；acquire 先保护完整计划，无法证明结果时保留，release 不面向应用。 相关操作见[指南](/guides/tasks)。",
+      "TaskQuery": "只查询原 task/request/caller 的上游回调，signal 供取消等待；不 infer/generate，不找不到就制造成功或失败。 相关操作见[指南](/guides/tasks)。",
+      "CapabilityTasks": "可信先持久化后执行的任务协调器；maxTasks 默认 10000、范围 1–1000000，allowEffects 默认 false，显式开启后副作用需确认，不自动恢复业务。",
+      "TaskSchedulingLimits": "可信宿主的单账本调度限制。包含总量及租户/账户/应用作用域的并发和非终态任务容量，executionMs为分派后的执行期限。消费应用不能修改。",
+      "DEFAULT_TASK_SCHEDULING_LIMITS": "只读默认调度配置：并发8/2/2/1、非终态容量64/16/16/8、执行期限30000ms。属于本机工程初值，不能据此声明生产吞吐或整机内存保证。"
+    }
+  },
+  "references": {
+    "introduction": "可信 Node 受控引用。应用拿到的是不透明 UUID，不是任意路径或 Provider 凭据。内存引用与显式持久引用分开；完整绑定、原结果查询与重开流程见[通用服务指南](/capabilities/services)。",
+    "symbols": {
+      "ReferenceScope": "tenantId/environment/installationId/consumerAppId 四维引用所有者；application/conversation 共享原业务范围，入口授权仍独立。 相关操作见[指南](/capabilities/services)。",
+      "ModelInference": "可信 infer 回调，prompt/context/requestId/signal 来自原请求，可能收费；不要在恢复路径调用。 相关操作见[指南](/capabilities/services)。",
+      "ModelQuery": "可信原结果查询回调，prompt/scope/requestId 与原 Provider 绑定；不能重新提交或重新记费。 相关操作见[指南](/capabilities/services)。",
+      "ModelProvider": "infer 必需，query 可选；缺 query 时无法自动恢复上游，保持 unknown。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityReferenceStore": "独立 SQLite 持久引用 has/issue/read/list/revoke/close；回调与凭据不落库，参数和重绑见下方操作表。",
+      "PersistentReference": "持久载荷 kind/text 或 providerId/providerRevision，加 referenceId/revision/revoked；scope 由存储方法限定而不包含在返回对象中。",
+      "PersistentReferencePayload": "text/model 两个互斥载荷：text 含 UTF-8 业务文本；model 含可信 providerId 和正整数 providerRevision，不保存秘密或函数。",
+      "CapabilityReferences": "内存或显式持久引用管理；issueText/Model/Provider、revoke、register/createCapabilities 和 queryModel 均可信接口，scope 必须原归属。查询失败不能回退 infer，见[服务指南](/capabilities/services)。 相关操作见[指南](/capabilities/services)。"
+    }
+  },
+  "services": {
+    "introduction": "导入公开 capability-kit/service-host.mjs，或已配置工程的 @sitoo/capability-dev-host/services。仅可信 Node 初始化层；精确 bindings、scope、Provider 和数据库不接受消费页面输入。完整步骤与变量来源见[服务接入](/capabilities/services)。",
+    "symbols": {
+      "createModelTaskQuery": "由同一 references 实例创建 TaskQuery，仅处理原 platform/infer，校验原任务/请求关联并 queryModel，不重跑。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityBroker": "注册/会话/准备/批准/执行/结果校验的可信代理，详细操作表见下方；不提供生产登录或跨进程 token。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityTasks": "可信先持久化后执行的任务协调器；maxTasks 默认 10000、范围 1–1000000，allowEffects 默认 false，显式开启后副作用需确认，不自动恢复业务。",
+      "CapabilityReferences": "内存或显式持久引用管理；issueText/Model/Provider、revoke、register/createCapabilities 和 queryModel 均可信接口，scope 必须原归属。查询失败不能回退 infer，见[服务指南](/capabilities/services)。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityReferenceStore": "独立 SQLite 持久引用 has/issue/read/list/revoke/close；回调与凭据不落库，参数和重绑见下方操作表。",
+      "ModelRequestLedger": "持久原请求 reserve/read/complete/close。reserve 必须先于上游派发，同 ID 改身份冲突；无法证明完成时保留 dispatched，重开不自动生成。",
+      "createDurableModelProvider": "将可信 Ledger 与 upstream infer/query 组合成 ModelProvider；首次占用后执行，恢复只查原身份。回调/秘密不入库。 相关操作见[指南](/capabilities/services)。",
+      "createImageService": "把可信图片 Provider 与原模型账本、产物查询组合为 InstalledHostService；生成与读取端口分离，参数见[服务指南](/capabilities/services)。 相关操作见[指南](/capabilities/services)。",
+      "imageCapabilityDeclaration": "构建 platform/generate-image 原生接口声明；binding 来自签名安装原闭包，不是随意 placeholder 摘要。 相关操作见[指南](/capabilities/services)。",
+      "createRequestService": "把可信结构化文本/图片 Provider 绑定到声明的原请求策略；不让应用选择任意 URL，原结果恢复只 query。 相关操作见[指南](/capabilities/services)。",
+      "requestCapabilityDeclaration": "构建 platform/text-request 或 platform/image-request 结构化原请求声明；effects/权限与可信策略一致，执行实现由可信宿主提供。",
+      "ImageArtifact": "已保存图片 PNG dataUrl 与 mimeType，用于原 taskArtifact 查询，不生成第二张。 相关操作见[指南](/capabilities/services)。",
+      "TaskArtifactQuery": "原 completed 图像任务与四维 scope 的可信产物查询回调；复核归属与当前授权，不执行副作用。 相关操作见[指南](/capabilities/services)。",
+      "ModelRequestIdentity": "原 scope/entry/binding/referenceId/requestId/prompt/providerId/providerRevision，精确规范化占用身份，不可由应用更换 Provider。 相关操作见[指南](/capabilities/services)。",
+      "ModelRequestRecord": "原 identity、执行状态与可选 result；账本结果以原查询核对，不从超时推断未计费。 相关操作见[指南](/capabilities/services)。",
+      "DurableModelUpstream": "可信 infer/query 上游适配； query 只按原 requestId 和不可变配置查询，不生成。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityRuntime": "构造合并并验证 limits；checkSource 编译真实包装器但不执行业务；createExecutor 校验原源码摘要并返回执行器；activeRuns 为当前运行数。CPU/等待中断不证明副作用未发生。 相关操作见[指南](/capabilities/services)。",
+      "prepareInstalledHost": "可信 v3 安装加载、验签授权与编译，传同实现实例 broker/runtime；services 为精确匹配的可信回调。返回 consumers、原租约和授权/资源检查端口，须 close。 相关操作见[指南](/capabilities/services)。",
+      "startDevelopmentHost": "可信启动本机 HTTP，configPath/dataDirectory 必填；可选 planner/services/query/artifact/独立confirmationToken 来自可信配置，返回 url 与异步 close。不开放生产身份。 相关操作见[指南](/capabilities/services)。",
+      "InstalledHostService": "签名原声明 declaration 与可信 execute 配对，缺失/多余/内容不一致拒绝；应用声明不能提供原生模块路径。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityInstallationStore": "原子安装、更新、卸载、权限预检及租约管理；每个方法的参数/返回/幂等/失败见[初装](/publishing/installations)与[生命周期](/publishing/lifecycle)。只读模式不迁移旧 schema，也不允许写入；close 幂等。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityAuthorizationStore": "按可信 root+entry 的授权账本，read/status 只查，set 显式比较 expectedRevision；readOnly 只开已有库且拒写。参数、收据和恢复见[入口授权](/publishing/authorization)。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityPackageTrust": "构造时固定可信公钥数组；verify(pkg,attestation,now?) 重验来源/环境/时间/撤销，now 默认 Date.now，不能由应用指定。 相关操作见[指南](/capabilities/services)。",
+      "CapabilityReleaseStore": "离线不可变发布库。publish 相同四维发布身份不能改内容；get 要精确 reference，当前重新验签；readOnly 不创建/发布，close 幂等。流程见[签名发布](/publishing/signatures)。 相关操作见[指南](/capabilities/services)。",
+      "verifyCapabilityPackage": "manifestJson 是原清单文本，files 为真实 Map 的原字节；成功返回冻结校验快照，不验签授权。失败、预算和格式见[目录包](/capabilities/packages)。 相关操作见[指南](/capabilities/services)。",
+      "signCapabilityPackage": "已校验 pkg、可信 KeyObject Ed25519 私钥和 metadata 必填，返回署名 ProtocolValidation；不发布、不安装，私钥不进入结果。 相关操作见[指南](/capabilities/services)。"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+:root{--vp-c-brand-1:#066961;--vp-c-brand-2:#066961;--vp-c-brand-3:#075b54;--vp-c-brand-soft:rgba(8,127,120,.13);--vp-home-hero-name-color:transparent;--vp-home-hero-name-background:linear-gradient(120deg,#087f78,#2c6ab4)}.dark{--vp-c-brand-1:#51c8bd;--vp-c-brand-2:#39b6ab;--vp-c-brand-3:#087f78}.VPHome .VPFeature{border-radius:16px}.vp-doc h2{letter-spacing:.01em}.vp-doc table{font-size:14px}.VPDoc.has-aside .content-container{max-width:840px}.VPHomeHero .text{font-size:44px!important;line-height:1.18!important}@media(max-width:640px){.VPHomeHero .text{font-size:32px!important}}
+.tool-downloads{display:grid;gap:20px;margin:24px 0}.tool-download-card{padding:24px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-soft)}.tool-download-card h2{margin:0;padding:0;border:0}.download-version{color:var(--vp-c-text-2)}.vp-doc a.download-button{display:inline-flex;padding:10px 20px;margin:8px 0 16px;border-radius:8px;background:var(--vp-c-brand-1);color:var(--vp-c-bg);font-weight:600;text-decoration:none}.tool-download-card details code{overflow-wrap:anywhere;white-space:normal}
+
+/* 官方横版 Logo 在两种主题下保持原始比例。 */
+.VPNavBarTitle .logo{height:32px;width:auto;max-width:120px;object-fit:contain}.VPHomeHero .image-src{border-radius:24px}
+@media(max-width:640px){.VPNavBarTitle .logo{height:28px;max-width:100px}.VPNavBarTitle .title{font-size:14px}}
+
+/* 平板宽度使用折叠菜单，避免品牌、搜索与六个导航项挤出页面。 */
+@media(min-width:768px) and (max-width:1099px){.VPNavBar .VPNavBarMenu,.VPNavBar .VPNavBarExtra{display:none!important}.VPNavBar .VPNavBarHamburger{display:flex!important}.VPNavScreen{display:block!important}}
+
+/* 行内代码、语言标签和行号在浅灰背景上也需达到正文对比度。 */
+:root{--vp-code-color:#066961;--vp-code-lang-color:#59606b;--vp-code-line-number-color:#59606b}
+.dark{--vp-code-color:#51c8bd;--vp-code-lang-color:#b0b6c1;--vp-code-line-number-color:#b0b6c1}
+/* 默认高亮中的红、橙和注释灰在代码背景上偏淡；只调整浅色 token。 */
+:root:not(.dark) .vp-doc code span[style*="--shiki-light:#D73A49"]{--shiki-light:#b32638!important}
+:root:not(.dark) .vp-doc code span[style*="--shiki-light:#E36209"]{--shiki-light:#a34400!important}
+:root:not(.dark) .vp-doc code span[style*="--shiki-light:#6A737D"]{--shiki-light:#57606a!important}
+/* 暗色注释同样保留可读对比度。 */
+.dark .vp-doc code span[style*="--shiki-dark:#6A737D"]{--shiki-dark:#9da7b2!important}
+/* 可访问提示保留在读屏树中，不使用 display:none 或抢占当前焦点。 */
+.docs-sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* 键盘聚焦的复制控件不能继续保持 hover 前的透明状态。 */
+.vp-doc div[class*="language-"]:focus-within>button.copy{opacity:1}
+.vp-doc a:focus-visible,.VPSidebar [role="button"]:focus-visible{outline:2px solid var(--vp-c-brand-1);outline-offset:3px;border-radius:2px}
+
+/* 桌面搜索同样提供可见关闭控件，键盘和指针均可明确退出。 */
+.VPLocalSearchBox .search-actions.before{display:flex!important}
+
+/* 亮色品牌文字在侧栏灰底和下载卡片上保留足够对比度余量。 */
