@@ -4,8 +4,8 @@
 
 | 组件 | 本文档对应版本 | 如何核对 |
 | --- | --- | --- |
-| Desktop | 0.0.37 | 目标客户端提供的版本信息 |
-| 开发者中心 | 0.6.0 | GET /health核对version、schema及deploymentEnvironment；开发schema1–4，生产身份5/显式发布6 |
+| Desktop | 0.0.39 | 目标客户端提供的版本信息 |
+| 开发者中心 | 0.8.0 | GET /health核对version、schema及deploymentEnvironment；当前浏览器宿主schema8，不自动降级 |
 | App SDK | 0.0.11 | developer-kit/sdk/package.json |
 | 共享能力工具包 | 0.39.0 | 下载文件名及 kit-manifest.json |
 | 开发宿主 | 0.23.0 | 工具分发声明；不要按协议号猜软件版本 |
@@ -54,3 +54,8 @@ features 表示接口支持，不保证模型已经配置；SDK 可导入也不�
 生产发布、密钥管理和独立目录安装见[生产发布指南](/center/production-publishing)。中心0.6.0、发布工具0.3.0、开发Desktop0.0.36；SDK0.0.11保持兼容。生产新业务执行与实际托管尚未开放；既有受邀测试环境保持原版本。
 
 当前Tasks0.6.1保持schema1/2和原查询契约；共享能力工具0.39.0增加Windows x64 Job/QuickJS入口，限本机开发/测试，详见[宿主与容量边界](/capabilities/host)。生产发布/信任管理已提供独立配置和公开工具；生产应用执行、实际服务器容量和生产身份接入仍须按目标环境验证，不能通过启用开发模式代替。
+
+
+## 浏览器应用运行环境
+
+中心0.8.0/schema8、Desktop0.0.39、浏览器宿主0.1.0、数据工具1.1.0新增本机HTTPS签名应用运行路径，支持经典静态页面与受限QuickJS。原生设备桥、模块脚本、图片产物Provider及公网托管未开放。具体配置、例子、原任务与更新行为见[浏览器宿主指南](/center/browser-host)；工具见[下载页](/downloads)。旧版下载保留，不自动降级schema。

@@ -52,6 +52,14 @@
       [
         "production-publishing",
         "生产发布与签名键管理"
+      ],
+      [
+        "data-recovery",
+        "数据保护与恢复"
+      ],
+      [
+        "browser-host",
+        "浏览器应用宿主"
       ]
     ]
   ],

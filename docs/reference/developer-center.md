@@ -1,12 +1,12 @@
 # 开发者中心HTTP
 
-服务0.6.0，开发/测试及显式生产身份与发布配置；不是应用SDK、模型服务管理接口或已部署生产REST。服务地址由平台操作者提供，默认本机http://127.0.0.1:18683。操作步骤见[身份与组织](/center/identity)。
+服务0.8.0/schema8，开发/测试及显式生产身份与发布配置；不是应用SDK、模型服务管理接口或已部署生产REST。服务地址由平台操作者提供，默认本机http://127.0.0.1:18683。操作步骤见[身份与组织](/center/identity)。
 
 ## 认证与写请求
 
 GET `/auth/login`启动服务端OIDC授权码+PKCE；GET `/auth/callback`验证state、浏览器绑定、nonce、RS256签名、issuer、audience与期限。仅配置邀请名单的稳定sub可接入。平台职责来自可信配置，不从组织成员权限推断。
 
-登录后浏览器使用HttpOnly SameSite=Lax Cookie，八小时绝对过期；开发名`sitoo_center`，生产名`__Host-sitoo_center_<绑定摘要>`并要求Secure、Path=/、无Domain，另有30分钟不活动过期及每账号最多5个并行会话。重新登录当前浏览器撤销旧会话。GET `/v1/session`读取会话CSRF；所有浏览器写请求必须同源Origin、`Content-Type: application/json`和`X-CSRF-Token`。JSON最大16KiB。浏览器界面正常fetch产生Origin，脚本须显式提供；不能以Bearer模型令牌代替会话。路径中组织ID必须等于当前会话scope且具有当前成员权限。
+登录后浏览器使用HttpOnly SameSite=Lax Cookie，八小时绝对过期；开发名`sitoo_center`，生产名`__Host-sitoo_center_<绑定摘要>`并要求Secure、Path=/、无Domain，另有30分钟不活动过期及每账号最多5个并行会话。重新登录当前浏览器撤销旧会话。GET `/v1/session`读取会话CSRF；所有浏览器写请求必须同源Origin、`Content-Type: application/json`和`X-CSRF-Token`。未单独声明的JSON请求最大16KiB，浏览器宿主路由为64KiB。浏览器界面正常fetch产生Origin，脚本须显式提供；不能以Bearer模型令牌代替会话。路径中组织ID必须等于当前会话scope且具有当前成员权限。
 
 响应是普通JSON，错误`{error:{code,requestId}}`，不包ProtocolValidation。常见401 UNAUTHENTICATED/LOGIN_STATE/IDENTITY_MISMATCH/LOGIN_TOKEN_INVALID，403 FORBIDDEN/SCOPE_MISMATCH/CSRF_REJECTED/DEVELOPER_NOT_INVITED/ENVIRONMENT_FORBIDDEN，409 LAST_OWNER/NAMESPACE_CONFLICT/ALREADY_MEMBER/INVITATION_UNAVAILABLE，400 INVALID_INPUT/INVALID_NAMESPACE/HOST_MISMATCH，413 BODY_TOO_LARGE，429 LOGIN_LIMIT，503 IDENTITY_UNAVAILABLE/SERVICE_UNAVAILABLE。库验证/上游故障脱敏，不公开密钥、路径、SQL或堆栈。失败未承诺自动重试；重新登录、核对当前scope或先查原记录。
 
@@ -14,7 +14,7 @@ GET `/auth/login`启动服务端OIDC授权码+PKCE；GET `/auth/callback`验证s
 
 | 方法/路径 | 输入 | 成功输出/职责 |
 | --- | --- | --- |
-| GET /health | 无 | status=ok、version=0.6.0、schema1–4开发/5生产身份、deploymentEnvironment、documentationUrl可选；不是已认证或生产可用证明 |
+| GET /health | 无 | status=ok、version=0.7.0、schema1–7（按显式模块配置）、deploymentEnvironment、documentationUrl可选；不是已认证或生产可用证明 |
 | GET /v1/session | 会话cookie | actor{id,sub,name}、scope(null个人/组织id)、csrf、organizations[{id,name,role}]、invitations[{id,org,name,role,expires}]、platformRoles[]、deploymentEnvironment |
 | POST /v1/logout | {} | signedOut:true，撤销当前会话；独立工具凭据须另行撤销 |
 | POST /v1/scope | organization:组织id或null | csrf；轮换cookie，旧会话立即失效，非成员组织拒绝 |
@@ -114,7 +114,7 @@ Remove-Item Env:SITOO_TEST_TOKEN
 开发部署可显式配置isolatedSessionCookies:true，使Cookie名按origin/client区分，适合一个浏览器同时访问多个本机开发中心；省略时sitoo_center/sitoo_login保持旧兼容。生产Cookie始终独立且Secure，不能通过此选项降级。
 
 
-生产发布、密钥管理和独立目录安装见[生产发布指南](/center/production-publishing)。中心0.6.0、发布工具0.3.0、开发Desktop0.0.34；SDK0.0.11保持兼容。生产新业务执行与实际托管尚未开放；既有受邀测试环境保持原版本。
+生产发布、密钥管理和独立目录安装见[生产发布指南](/center/production-publishing)。中心0.7.0、发布工具0.3.0、开发Desktop0.0.34；SDK0.0.11保持兼容。生产新业务执行与实际托管尚未开放；既有受邀测试环境保持原版本。
 
 ## 生产发布与密钥HTTP
 
@@ -127,3 +127,56 @@ Remove-Item Env:SITOO_TEST_TOKEN
 | GET /v1/catalog-trust | 当前可见命名空间公钥；会话或只读目录Bearer，不自动授予新键信任 |
 
 生产签发沿用原publish路由，返回environment:production；同版本内容与envelope不可变。KEY_REVOCATION_PERMANENT、KEY_NOT_STAGED为409；签发SIGNING_KEY_UNAVAILABLE为503，激活时为409；错误渠道400。依赖/签名已失效时目录不发现，下载404。配置或历史绑定错误启动拒绝。完整参数、示例与恢复步骤见[生产发布指南](/center/production-publishing)。
+
+
+## 数据导出与删除
+
+显式启用dataManagement后，GET `/v1/session`增加dataManagement布尔字段。以下为当前会话操作，发布/目录Bearer不能使用。组织仅owner，个人仍拥有组织时先处理组织；POST须同源JSON及CSRF。
+
+| 操作 | 输入 | 返回 |
+| --- | --- | --- |
+| GET /v1/data/export | 当前会话 | version、environment、owner、profile、namespaces、projects、submissions、credentials元数据、feedback；无会话和凭据秘密 |
+| POST /v1/data/deletion-preview | {} | token、confirmation、owner、影响ID列表、dataDigest、irreversible=true、retentionDays=30 |
+| POST /v1/data/delete | token、confirmation、confirm=DELETE | deleted、backupPolicy=quarantined、retentionDays=30 |
+
+预览5分钟有效并绑定正文、账户和范围，内容变化须重新预览。401 UNAUTHENTICATED、403 CSRF_REJECTED/FORBIDDEN/OWNER_DATA_DELETED、409 ORGANIZATION_OWNERSHIP_REQUIRED/DELETE_CONFIRMATION_REQUIRED/DELETE_PREVIEW_CHANGED、503 SERVICE_UNAVAILABLE。删除后原会话失效；先持久独立登记再清理，故障后由运维修复并重启续清理。完整配置、示例与恢复限制见[数据保护指南](/center/data-recovery)。
+
+
+
+## 兼容应用浏览器宿主（中心0.8.0）
+
+[浏览器宿主指南](/center/browser-host)。当前只开放显式回环HTTPS工程配置；不是开发宿主Bearer接口，也不是App SDK原生桥。session响应增加browserHost布尔值。部署与兼容限制见手册；中心schema8。
+
+GET /browser与/browser/client.mjs返回控制页和客户端，无身份数据。下列/v1/browser接口全部要求当前HttpOnly会话、同源Origin（浏览器同源GET可使用Sec-Fetch-Site）及x-csrf-token；不接受开发Bearer。只有list为GET，其余POST且JSON最大65536字节。未知字段拒绝；context绑定会话、actor/组织、安装闭包、入口授权revision及成员epoch，最长30分钟。
+
+| 路由后缀 | 参数 | 响应value |
+| --- | --- | --- |
+| list | 无 | applications/catalog/operations/compatibility |
+| preview | kind=install/update及project/release；uninstall及application；authorize/revoke及application/entry | token/requestId及版本、权限检查摘要；5分钟有效 |
+| confirm | token,confirmed:true | requestId,state,application；安装不自动授权 |
+| resume | requestId | 查询并续办本账户原安装操作，不能替代预览发起新操作 |
+| open | application,entry=application/conversation/service | context,application,entry |
+| contexts/:id/application | {} | 签名页面描述，仅兼容应用 |
+| contexts/:id/tools | {} | 当前入口授权工具目录 |
+| contexts/:id/prepare | capabilityId,input | 已校验的原协议请求；不执行 |
+| contexts/:id/plan | prompt | 可选本机模型生成的校验请求；不执行/审批 |
+| contexts/:id/submit | protocolVersion,requestId,capabilityId,input | 原Task submit契约 |
+| contexts/:id/get、cancel、confirmation | taskId | 原Task查询、取消、getConfirmation契约 |
+| contexts/:id/list | {} | 原Task列表 |
+| contexts/:id/approve | taskId,revision,confirmed:true | 原Task approve CAS契约；仅可信控制页明确确认 |
+| contexts/:id/artifact | taskId | 当前Provider未配置，INCOMPATIBLE；不返回虚构产物 |
+| history | application,可选taskId | 本归属只读原任务，不触发执行；撤执行权后可用 |
+
+成功包装为{ok:true,value}；能力失败保留{ok:false,error}公共协议。HTTP错误为{error:{code,requestId}}：401 UNAUTHENTICATED；403 CSRF_REJECTED/FORBIDDEN/BROWSER_ENTRY_UNAUTHORIZED/BROWSER_CONTEXT_EXPIRED；409 BROWSER_PREVIEW_INVALID/BROWSER_PREVIEW_STALE/BROWSER_APPLICATION_UNSUPPORTED/BROWSER_CAPABILITY_UNSUPPORTED/CONFLICT；429 LIMIT_EXCEEDED/BROWSER_HOST_LIMIT；503配置或宿主暂不可用。模型不可用不回退执行。内部异常隐藏详情。关闭/断网不自动重试，unknown必须查询原任务并保留pin。
+
+```javascript
+const session = await (await fetch('/v1/session')).json();
+const call = async (action, input) => (await fetch('/v1/browser/' + action, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json', 'x-csrf-token': session.csrf },
+  body: JSON.stringify(input)
+})).json();
+// 只在可信同源程序中使用；不得把csrf/context传给第三方iframe。
+const opened = await call('open', { application: 'publisher.app', entry: 'service' });
+if (opened.ok) console.log(await call('contexts/' + opened.value.context + '/tools', {}));
+```

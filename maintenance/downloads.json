@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-11",
+  "date": "2026-11-08",
   "tools": [
     {
       "title": "App 开发工具包",
@@ -924,6 +924,118 @@
           "sha256": "84930952c977ea2402f58fa980d3319d50fca54bdbe1008a94403b68f22561e3"
         }
       ]
+    },
+    {
+      "title": "数据保护运维工具",
+      "directory": "ecosystem-data",
+      "file": "opensitoo-data-tools-1.1.0.zip",
+      "bytes": 13153,
+      "sha256": "c39de6ae92b98d13c6adeaac516908b9160b553b0a7cfaf8b84359dc786c176b",
+      "version": "1.1.0",
+      "files": [
+        {
+          "path": "ecosystem-data.mjs",
+          "sha256": "cd52aac4d0243e6c642d3b8b17670342d1f1cd330785b4da7161098677703842"
+        },
+        {
+          "path": "README.md",
+          "sha256": "0db78fb815d98744aba419414c2a7b951ad209eba62b73b687bbfb87bde29bb4"
+        },
+        {
+          "path": "manifest.json",
+          "sha256": "30c937358923b8963e7a12806012c4f03869ef47a1188cb620b8d0404e895295"
+        }
+      ]
+    },
+    {
+      "title": "浏览器应用宿主",
+      "directory": "browser-host",
+      "file": "opensitoo-browser-host-0.1.0.zip",
+      "bytes": 691632,
+      "sha256": "8d822bb15e230ab3efad92e028ddfd7f3661e0691000f202fe144c211f232101",
+      "version": "0.1.0",
+      "files": [
+        {
+          "path": "browser-worker.mjs",
+          "sha256": "7d21697aae1371e98af8633d823fad11466fb8028eca2c11ed765f3a3f6c7fc2"
+        },
+        {
+          "path": "browser-server.mjs",
+          "sha256": "b962417f33e89d56df806b487dbf16e15991d46496db36121be283bf324a728d"
+        },
+        {
+          "path": "browser-client.mjs",
+          "sha256": "077c375a3094441e6e66653c5e56321fdef30d9d3be82c3fa76ab45447eebe9e"
+        },
+        {
+          "path": "browser.html",
+          "sha256": "eb37ef435181fae462a5b18f53d0a52e20ad7e5edf3c83fa94ab731afe3f981a"
+        },
+        {
+          "path": "worker.mjs",
+          "sha256": "9c21d9fd6ce2134eedd555554b1d8ba47e4f016677e0f27fd8e746e04a66a128"
+        },
+        {
+          "path": "quickjs.wasm",
+          "sha256": "d4c9375f2b1ca4dc95f72c8aa2982a7a9951ac8011490d79c6582df732b4bbd9"
+        },
+        {
+          "path": "sitoo-job.exe",
+          "sha256": "c609c5f11898b64fbec5cafa125b9372cad11423e9770e058e202b608dee1743"
+        },
+        {
+          "path": "isolation-manifest.json",
+          "sha256": "aed3d8b16199691b5126cd69528b7bb75fb33a97d7cd1abbbd21ba3cb487ecc5"
+        },
+        {
+          "path": "QUICKJS-LICENSE",
+          "sha256": "f7735da3b2531ddf451937117343cfadb853fd8054b499e7a70695dc57ffd184"
+        },
+        {
+          "path": "licenses/jose.txt",
+          "sha256": "8078b0829d6c3e9ecde2f003e1966e4cad3efc6e7a640efbab0313cc166b1af1"
+        },
+        {
+          "path": "licenses/ajv.txt",
+          "sha256": "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3"
+        },
+        {
+          "path": "licenses/fast-deep-equal.txt",
+          "sha256": "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+        },
+        {
+          "path": "licenses/fast-uri.txt",
+          "sha256": "b010b0dfdfdb23d7396e03b82cd4621fc9bb8f95d6b0aea70b9c24e12074c786"
+        },
+        {
+          "path": "licenses/json-schema-traverse.txt",
+          "sha256": "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+        },
+        {
+          "path": "licenses/semver.txt",
+          "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
+        },
+        {
+          "path": "README.md",
+          "sha256": "d930143e1cd882c3faf6153b438bffa3c1093b037866114b8986a49686abde2b"
+        },
+        {
+          "path": "admin-web/index.html",
+          "sha256": "1f598845e383e4e60f4c3caa47d0dc41f284c248e8a0abfe5de3c18daaee8a93"
+        },
+        {
+          "path": "admin-web/app.js",
+          "sha256": "5488902a7093ae304072cd780bbcd3ed51581d4b1a87ef50520d4e7659775ef9"
+        },
+        {
+          "path": "admin-web/app.css",
+          "sha256": "146b411072a7927b44de0f40cc96e1d23f034cff216c111f889cf13e81230226"
+        },
+        {
+          "path": "manifest.json",
+          "sha256": "7330b4c9bfb2d49870c520832acacb96aeab64a82ffde5f8ab9add03b8ec2c28"
+        }
+      ]
     }
   ],
   "platformCommit": "e8e58898ebdcee2f0b5220ad8fb78ce5c295c85a",
@@ -1259,6 +1371,16 @@
           "sha256": "4911284c072d8c2e88f5624662e9fc99d06f9fa2b00739f2db4f4ab5264350f0"
         }
       ]
+    },
+    {
+      "title": "数据保护运维工具",
+      "version": "1.0.0",
+      "directory": "ecosystem-data",
+      "file": "opensitoo-data-tools-1.0.0.zip",
+      "bytes": 12893,
+      "sha256": "8ce8aa6a6f85d08e9f1e2702dc9f69666a1d659ca3c5cee4b89d2efc547c47fb",
+      "size": "0.01 MB",
+      "description": "可信宿主操作者使用：备份恢复、账户导出删除和备份保留；不包含用户数据、配置或私钥。"
     }
   ]
 }

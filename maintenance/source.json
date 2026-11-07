@@ -1,7 +1,10 @@
 {
   "version": 1,
-  "sourceRevision": "10aa27c02af1711970469994d80c718db8b4ed3f",
+  "sourceRevision": "dd84dd84804daa1a56b0d86d1baba227c2fe9bf4",
+  "platformRevision": "f44b8776e2bb7c6dd4d495645eadbcfe14b7f7a2",
   "sdkVersion": "0.0.11",
   "capabilityKitVersion": "0.39.0",
-  "formalPages": 58
+  "browserHostVersion": "0.1.0",
+  "dataToolsVersion": "1.1.0",
+  "formalPages": 60
 }
